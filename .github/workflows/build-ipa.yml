@@ -36,6 +36,7 @@ jobs:
         run: |
           cd ios-native
           xcodegen generate
+          sed -i '' 's/objectVersion = 77/objectVersion = 56/g' VovinamHocThuoc.xcodeproj/project.pbxproj
 
       - name: Build Native SwiftUI App Binary (iOS 15 Release)
         run: |
