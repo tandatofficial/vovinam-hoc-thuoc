@@ -23,6 +23,7 @@ jobs:
 
       - name: Build Native SwiftUI App Binary (iOS 15 Release)
         run: |
+          set -o pipefail
           xcodebuild clean build \
             -project ios-native/VovinamHocThuoc.xcodeproj \
             -scheme VovinamHocThuoc \
@@ -32,7 +33,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            IPHONEOS_DEPLOYMENT_TARGET=15.0
+            IPHONEOS_DEPLOYMENT_TARGET=15.0 2>&1 | tee xcodebuild.log || (echo "=== COMPILATION ERRORS ===" && grep -C 3 -E "error:|fatal error:" xcodebuild.log && exit 1)
 
       - name: Package Native IPA for TrollStore
         run: |
