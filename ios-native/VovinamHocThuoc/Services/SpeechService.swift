@@ -7,9 +7,11 @@ public protocol SpeechServiceProtocol: AnyObject {
     var speechRate: Float { get }
     func speak(_ text: String)
     func speakQuestion(number: Int, fallbackText: String)
+    func speakQuestion(number: Int, isFull: Bool, fallbackText: String)
     func stop()
     func toggle(_ text: String)
     func toggleQuestion(number: Int, fallbackText: String)
+    func toggleQuestion(number: Int, isFull: Bool, fallbackText: String)
     func setSpeedSlow()
     func setSpeedNormal()
 }
@@ -76,12 +78,17 @@ public final class SpeechService: NSObject, ObservableObject, SpeechServiceProto
 
     /// Phát file âm thanh người Việt thật 100% nếu có sẵn, fallback sang TTS nếu không tìm thấy
     public func speakQuestion(number: Int, fallbackText: String) {
+        speakQuestion(number: number, isFull: false, fallbackText: fallbackText)
+    }
+
+    public func speakQuestion(number: Int, isFull: Bool, fallbackText: String) {
         stop()
 
-        // Tìm file q{number}.mp3 trong bundle (Resources hoặc Resources/Audio)
-        var audioURL = Bundle.main.url(forResource: "q\(number)", withExtension: "mp3")
+        // Tìm file q{number}.mp3 hoặc q{number}_full.mp3 trong bundle
+        let baseName = isFull ? "q\(number)_full" : "q\(number)"
+        var audioURL = Bundle.main.url(forResource: baseName, withExtension: "mp3")
         if audioURL == nil {
-            audioURL = Bundle.main.url(forResource: "q\(number)", withExtension: "mp3", subdirectory: "Audio")
+            audioURL = Bundle.main.url(forResource: baseName, withExtension: "mp3", subdirectory: "Audio")
         }
 
         if let url = audioURL {
@@ -106,10 +113,14 @@ public final class SpeechService: NSObject, ObservableObject, SpeechServiceProto
     }
 
     public func toggleQuestion(number: Int, fallbackText: String) {
+        toggleQuestion(number: number, isFull: false, fallbackText: fallbackText)
+    }
+
+    public func toggleQuestion(number: Int, isFull: Bool, fallbackText: String) {
         if isSpeaking {
             stop()
         } else {
-            speakQuestion(number: number, fallbackText: fallbackText)
+            speakQuestion(number: number, isFull: isFull, fallbackText: fallbackText)
         }
     }
 

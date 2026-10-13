@@ -3,19 +3,25 @@ import SwiftUI
 /// Thanh phát âm thanh Native Tiếng Việt (Người thật 100% qua file Audio, fallback sang Apple TTS)
 public struct SpeechPlayerBar: View {
     public let questionNumber: Int?
+    public let isFull: Bool
     public let textToSpeak: String
     public var labelText: String
+    public var buttonText: String?
     
     @ObservedObject private var speechService = SpeechService.shared
 
     public init(
         questionNumber: Int? = nil,
+        isFull: Bool = false,
         textToSpeak: String,
-        labelText: String = "Giọng đọc Tiếng Việt (Người thật 100%)"
+        labelText: String = "Giọng đọc Tiếng Việt (Người thật 100%)",
+        buttonText: String? = nil
     ) {
         self.questionNumber = questionNumber
+        self.isFull = isFull
         self.textToSpeak = textToSpeak
         self.labelText = labelText
+        self.buttonText = buttonText
     }
 
     public var body: some View {
@@ -60,7 +66,7 @@ public struct SpeechPlayerBar: View {
             // Nút bấm Nghe / Dừng To Bản
             Button(action: {
                 if let num = questionNumber {
-                    speechService.toggleQuestion(number: num, fallbackText: textToSpeak)
+                    speechService.toggleQuestion(number: num, isFull: isFull, fallbackText: textToSpeak)
                 } else {
                     speechService.toggle(textToSpeak)
                 }
@@ -68,7 +74,7 @@ public struct SpeechPlayerBar: View {
                 HStack(spacing: 8) {
                     Image(systemName: speechService.isSpeaking ? "stop.circle.fill" : "play.circle.fill")
                         .font(.system(size: 20))
-                    Text(speechService.isSpeaking ? "Dừng giọng đọc" : "Nghe đọc mẫu câu hỏi & ý cốt tử")
+                    Text(speechService.isSpeaking ? "Dừng giọng đọc" : (buttonText ?? (isFull ? "Nghe đọc toàn bộ nguyên văn chi tiết" : "Nghe đọc mẫu câu hỏi & ý cốt tử")))
                         .font(.subheadline.weight(.bold))
                 }
                 .frame(maxWidth: .infinity)

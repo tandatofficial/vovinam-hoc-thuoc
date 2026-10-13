@@ -265,22 +265,15 @@ public struct StudyView: View {
                     }
                 } else {
                     // TAB 2: NGUYÊN VĂN CHI TIẾT
-                    VStack(alignment: .leading, spacing: 12) {
-                        Button(action: {
-                            let full = "\(question.fullAnswer.intro). \(question.fullAnswer.quote ?? ""). " + question.fullAnswer.paragraphs.joined(separator: ". ")
-                            speechService.toggle(full)
-                        }) {
-                            HStack {
-                                Image(systemName: speechService.isSpeaking ? "stop.fill" : "speaker.wave.3.fill")
-                                Text(speechService.isSpeaking ? "Dừng đọc" : "Nghe đọc toàn bộ nguyên văn")
-                            }
-                            .font(.caption.weight(.bold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(speechService.isSpeaking ? AppTheme.Colors.unlearned : AppTheme.Colors.primaryLight)
-                            .foregroundColor(speechService.isSpeaking ? .white : AppTheme.Colors.primary)
-                            .cornerRadius(10)
-                        }
+                    VStack(alignment: .leading, spacing: 14) {
+                        let fullText = "\(question.fullAnswer.intro). \(question.fullAnswer.quote ?? ""). " + question.fullAnswer.paragraphs.joined(separator: ". ")
+                        SpeechPlayerBar(
+                            questionNumber: question.number,
+                            isFull: true,
+                            textToSpeak: fullText,
+                            labelText: "Giọng đọc Nguyên văn chi tiết (Người thật 100%)",
+                            buttonText: "Nghe đọc toàn bộ nguyên văn chi tiết"
+                        )
 
                         Text(question.fullAnswer.intro)
                             .font(.system(size: currentTextSize, weight: .bold))
