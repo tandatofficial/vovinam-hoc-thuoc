@@ -61,9 +61,9 @@ export const StudyView: React.FC<StudyViewProps> = ({
   const currentIndex = questions.findIndex((q) => q.id === currentId);
   const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
 
-  // Handle Vietnamese TTS
-  const handleSpeak = (text: string) => {
-    vnSpeech.toggle(text);
+  // Handle Vietnamese TTS & Cloned Audio
+  const handleSpeak = (text: string, audioUrl?: string) => {
+    vnSpeech.toggle(text, audioUrl);
   };
 
   const handleSetSpeed = (newSpeed: VoiceSpeed) => {
@@ -398,7 +398,7 @@ export const StudyView: React.FC<StudyViewProps> = ({
               {/* Action buttons */}
               <div className="flex items-center gap-2 pt-1">
                 <button
-                  onClick={() => handleSpeak(`${currentQuestion.title}. Ý chính: ${currentQuestion.easyAnswer.headlineQuote}. ${currentQuestion.easyAnswer.coreMeaning}`)}
+                  onClick={() => handleSpeak(`${currentQuestion.title}. Ý chính: ${currentQuestion.easyAnswer.headlineQuote}. ${currentQuestion.easyAnswer.coreMeaning}`, `/audio/q${currentQuestion.id}_easy.mp3`)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs transition-all active:scale-98 shadow-xs ${
                     isSpeaking
                       ? 'bg-score-forgot text-white shadow-score-forgot/30'
@@ -560,7 +560,7 @@ export const StudyView: React.FC<StudyViewProps> = ({
                             currentQuestion.fullAnswer.quote,
                             ...currentQuestion.fullAnswer.paragraphs
                           ].filter(Boolean).join('. ');
-                          handleSpeak(fullText);
+                          handleSpeak(fullText, `/audio/q${currentQuestion.id}_full.mp3`);
                         }}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-xs ${
                           isSpeaking

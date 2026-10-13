@@ -275,13 +275,57 @@ class VietnameseSpeechService {
   }
 
   /**
+   * Phát file âm thanh đã clone (VieNeu-TTS), nếu chưa có file thì tự động đọc qua TTS
+   */
+  public playAudioOrSpeak(audioUrl?: string, fallbackText: string = ''): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.isPlaying) {
+        this.stop();
+        resolve();
+        return;
+      }
+
+      if (audioUrl) {
+        this.stop();
+        this.notify(true);
+
+        const audio = new Audio(audioUrl);
+        this.currentAudio = audio;
+        audio.playbackRate = this.speed;
+
+        audio.onended = () => {
+          this.stop();
+          resolve();
+        };
+
+        audio.onerror = () => {
+          // File cloned chưa có hoặc 404, fallback mượt mà sang TTS
+          console.info(`Audio track ${audioUrl} not found, falling back to dynamic TTS.`);
+          this.speak(fallbackText).then(resolve);
+        };
+
+        audio.play().catch(() => {
+          this.speak(fallbackText).then(resolve);
+        });
+        return;
+      }
+
+      this.speak(fallbackText).then(resolve);
+    });
+  }
+
+  /**
    * Bật/Tắt phát nhanh
    */
-  public toggle(text: string): void {
+  public toggle(text: string, audioUrl?: string): void {
     if (this.isPlaying) {
       this.stop();
     } else {
-      this.speak(text);
+      if (audioUrl) {
+        this.playAudioOrSpeak(audioUrl, text);
+      } else {
+        this.speak(text);
+      }
     }
   }
 }
