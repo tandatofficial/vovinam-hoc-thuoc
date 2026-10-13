@@ -15,16 +15,14 @@ public struct KeyPointsChecklistView: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Label("Checklist các ý bắt buộc", systemImage: "checklist")
-                    .font(.subheadline)
-                    .fontWeight(.bold)
+                    .font(.subheadline.weight(.bold))
                     .foregroundColor(.blue)
 
                 Spacer()
 
                 let doneCount = checkedItems.filter { $0.value }.count
                 Text("\(doneCount)/\(items.count) ý")
-                    .font(.caption)
-                    .fontWeight(.bold)
+                    .font(.caption.weight(.bold))
                     .foregroundColor(doneCount == items.count && !items.isEmpty ? .green : .secondary)
             }
             .padding(.horizontal)
@@ -52,8 +50,7 @@ public struct KeyPointsChecklistView: View {
                     .padding(.top, 2)
 
                 Text(point)
-                    .font(.subheadline)
-                    .fontWeight(isChecked ? .semibold : .regular)
+                    .font(.subheadline.weight(isChecked ? .semibold : .regular))
                     .foregroundColor(isChecked ? .primary : .secondary)
                     .strikethrough(isChecked, color: .green.opacity(0.6))
                     .multilineTextAlignment(.leading)

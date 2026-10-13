@@ -43,8 +43,7 @@ public struct MainTabView: View {
                 VStack {
                     Spacer()
                     Text(toast)
-                        .font(.footnote)
-                        .fontWeight(.bold)
+                        .font(.footnote.weight(.bold))
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .background(Color(.systemGray6))

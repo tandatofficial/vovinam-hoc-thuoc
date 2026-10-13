@@ -21,8 +21,7 @@ public struct ChunkStudyView: View {
             VStack(spacing: 6) {
                 HStack {
                     Text("Đoạn \(activeChunkIndex + 1)/\(chunks.count)")
-                        .font(.caption)
-                        .fontWeight(.bold)
+                        .font(.caption.weight(.bold))
                         .foregroundColor(.blue)
 
                     Spacer()
@@ -54,8 +53,7 @@ public struct ChunkStudyView: View {
                         Image(systemName: "chevron.left")
                         Text("Đoạn trước")
                     }
-                    .font(.subheadline)
-                    .fontWeight(.bold)
+                    .font(.subheadline.weight(.bold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(activeChunkIndex > 0 ? Color(.systemGray6) : Color(.systemGray6).opacity(0.4))
@@ -74,8 +72,7 @@ public struct ChunkStudyView: View {
                         Text("Đoạn kế")
                         Image(systemName: "chevron.right")
                     }
-                    .font(.subheadline)
-                    .fontWeight(.bold)
+                    .font(.subheadline.weight(.bold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(activeChunkIndex < chunks.count - 1 ? Color.blue : Color(.systemGray6).opacity(0.4))
@@ -93,8 +90,7 @@ public struct ChunkStudyView: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Label("Phân đoạn số \(activeChunkIndex + 1)", systemImage: "text.alignleft")
-                    .font(.caption)
-                    .fontWeight(.bold)
+                    .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
 
                 Spacer()
@@ -129,8 +125,7 @@ public struct ChunkStudyView: View {
                     isMasked.toggle()
                 }) {
                     Label(isMasked ? "Hiện chữ" : "Ẩn để nhẩm", systemImage: isMasked ? "eye.fill" : "eye.slash.fill")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
+                        .font(.footnote.weight(.semibold))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(Color(.systemGray6))
@@ -144,8 +139,7 @@ public struct ChunkStudyView: View {
                 }) {
                     let isDone = learnedChunks[activeChunkIndex] ?? false
                     Label(isDone ? "Đã thuộc" : "Chưa thuộc", systemImage: isDone ? "checkmark.circle.fill" : "circle")
-                        .font(.footnote)
-                        .fontWeight(.bold)
+                        .font(.footnote.weight(.bold))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(isDone ? Color.green.opacity(0.15) : Color(.systemGray6))

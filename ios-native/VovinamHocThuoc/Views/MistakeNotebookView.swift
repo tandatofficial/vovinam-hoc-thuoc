@@ -33,8 +33,7 @@ public struct MistakeNotebookView: View {
                                 VStack(alignment: .leading, spacing: 8) {
                                     HStack {
                                         Text("CÂU #\(q.number)")
-                                            .font(.caption2)
-                                            .fontWeight(.bold)
+                                            .font(.caption2.weight(.bold))
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)
                                             .background(Color.red.opacity(0.12))
@@ -50,14 +49,12 @@ public struct MistakeNotebookView: View {
                                         }
 
                                         Text(q.score == 0 ? "Quên (0đ)" : "Đã ghim")
-                                            .font(.caption2)
-                                            .fontWeight(.bold)
+                                            .font(.caption2.weight(.bold))
                                             .foregroundColor(.red)
                                     }
 
                                     Text(q.title)
-                                        .font(.headline)
-                                        .fontWeight(.bold)
+                                        .font(.headline.weight(.bold))
                                         .foregroundColor(.primary)
 
                                     Text(q.easyAnswer.mnemonic)

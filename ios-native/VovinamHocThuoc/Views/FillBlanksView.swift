@@ -25,8 +25,7 @@ public struct FillBlanksView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Label("Điền từ còn thiếu vào chỗ trống", systemImage: "character.cursor.ibeam")
-                .font(.subheadline)
-                .fontWeight(.bold)
+                .font(.subheadline.weight(.bold))
                 .foregroundColor(.blue)
                 .padding(.horizontal)
 
@@ -62,8 +61,7 @@ public struct FillBlanksView: View {
                                         }
                                     }) {
                                         Text(word)
-                                            .font(.footnote)
-                                            .fontWeight(.bold)
+                                            .font(.footnote.weight(.bold))
                                             .padding(.horizontal, 12)
                                             .padding(.vertical, 8)
                                             .background(Color.blue.opacity(0.12))
@@ -81,8 +79,7 @@ public struct FillBlanksView: View {
                             isChecked = true
                         }) {
                             Text("Kiểm tra kết quả")
-                                .font(.footnote)
-                                .fontWeight(.bold)
+                                .font(.footnote.weight(.bold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                                 .background(Color.blue)
@@ -95,8 +92,7 @@ public struct FillBlanksView: View {
                             isChecked = false
                         }) {
                             Text("Làm lại")
-                                .font(.footnote)
-                                .fontWeight(.semibold)
+                                .font(.footnote.weight(.semibold))
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 10)
                                 .background(Color(.systemGray6))

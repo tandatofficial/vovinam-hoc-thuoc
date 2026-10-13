@@ -151,8 +151,7 @@ public struct StudyView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("CÂU HỎI #\(question.number)")
-                        .font(.caption2)
-                        .fontWeight(.black)
+                        .font(.caption2.weight(.black))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(Color.blue.opacity(0.12))
@@ -180,8 +179,7 @@ public struct StudyView: View {
                                 .foregroundColor(speechService.isSpeaking ? .red : .blue)
 
                             Text(speechService.isSpeaking ? "Đang đọc mẫu..." : "Giọng đọc Tiếng Việt (Apple vi-VN)")
-                                .font(.caption)
-                                .fontWeight(.bold)
+                                .font(.caption.weight(.bold))
                                 .foregroundColor(.primary)
                         }
 
@@ -258,8 +256,7 @@ public struct StudyView: View {
                 }) {
                     HStack {
                         Label("Gợi ý từ khóa tốc hành", systemImage: "sparkles")
-                            .font(.caption)
-                            .fontWeight(.bold)
+                            .font(.caption.weight(.bold))
                             .foregroundColor(.orange)
 
                         Spacer()
@@ -297,8 +294,7 @@ public struct StudyView: View {
                         // Ý cốt tử
                         VStack(alignment: .leading, spacing: 6) {
                             Label("Ý cốt tử bắt buộc thuộc", systemImage: "bookmark.fill")
-                                .font(.caption2)
-                                .fontWeight(.bold)
+                                .font(.caption2.weight(.bold))
                                 .foregroundColor(.orange)
 
                             Text(question.easyAnswer.headlineQuote)
@@ -322,8 +318,7 @@ public struct StudyView: View {
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Mẹo nhớ nhanh:")
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
+                                    .font(.caption2.weight(.bold))
                                     .foregroundColor(.blue)
 
                                 Text(question.easyAnswer.mnemonic)
@@ -353,8 +348,7 @@ public struct StudyView: View {
                                 Image(systemName: speechService.isSpeaking ? "stop.fill" : "speaker.wave.3.fill")
                                 Text(speechService.isSpeaking ? "Dừng đọc" : "Nghe đọc toàn bộ nguyên văn")
                             }
-                            .font(.caption)
-                            .fontWeight(.bold)
+                            .font(.caption.weight(.bold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
                             .background(speechService.isSpeaking ? Color.red : Color.blue.opacity(0.12))
@@ -406,8 +400,7 @@ public struct StudyView: View {
     private func selfAssessmentBar(question: Question) -> some View {
         VStack(spacing: 8) {
             Text("TỰ ĐÁNH GIÁ PHẢN XẠ NHỚ")
-                .font(.caption2)
-                .fontWeight(.bold)
+                .font(.caption2.weight(.bold))
                 .foregroundColor(.secondary)
                 .tracking(1)
 

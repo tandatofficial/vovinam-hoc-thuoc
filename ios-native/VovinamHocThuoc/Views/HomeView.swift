@@ -15,14 +15,12 @@ public struct HomeView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("LỘ TRÌNH CẤP TỐC")
-                                    .font(.caption2)
-                                    .fontWeight(.black)
+                                    .font(.caption2.weight(.black))
                                     .foregroundColor(.white.opacity(0.8))
                                     .tracking(1)
 
                                 Text("Ngày \(viewModel.currentDay) / 10 Ngày")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
+                                    .font(.title2.weight(.bold))
                                     .foregroundColor(.white)
                             }
 
@@ -33,8 +31,7 @@ public struct HomeView: View {
                                 Image(systemName: "flame.fill")
                                     .foregroundColor(.orange)
                                 Text("\(viewModel.streakDays) ngày")
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
+                                    .font(.subheadline.weight(.bold))
                                     .foregroundColor(.white)
                             }
                             .padding(.horizontal, 10)
@@ -56,8 +53,7 @@ public struct HomeView: View {
                                 Spacer()
 
                                 Text("\(viewModel.progressPercent)% hoàn thành")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
+                                    .font(.caption.weight(.bold))
                                     .foregroundColor(.white)
                             }
                         }
@@ -68,8 +64,7 @@ public struct HomeView: View {
                         }) {
                             HStack {
                                 Text("Vào học câu hôm nay")
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
+                                    .font(.subheadline.weight(.bold))
                                 Image(systemName: "arrow.right")
                             }
                             .frame(maxWidth: .infinity)
@@ -103,8 +98,7 @@ public struct HomeView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Text("10 CÂU LÝ THUYẾT VÕ ĐẠO")
-                                .font(.caption)
-                                .fontWeight(.bold)
+                                .font(.caption.weight(.bold))
                                 .foregroundColor(.secondary)
 
                             Spacer()
@@ -113,8 +107,7 @@ public struct HomeView: View {
                                 selectedTab = 2 // Tab Ngân hàng câu hỏi
                             }) {
                                 Text("Xem tất cả")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
+                                    .font(.caption.weight(.bold))
                                     .foregroundColor(.blue)
                             }
                         }
@@ -127,16 +120,14 @@ public struct HomeView: View {
                                 }) {
                                     HStack(spacing: 12) {
                                         Text("#\(q.number)")
-                                            .font(.footnote)
-                                            .fontWeight(.bold)
+                                            .font(.footnote.weight(.bold))
                                             .frame(width: 32, height: 32)
                                             .background(Color(.systemGray6))
                                             .cornerRadius(8)
 
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(q.title)
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
+                                                .font(.subheadline.weight(.semibold))
                                                 .foregroundColor(.primary)
                                                 .lineLimit(1)
 
@@ -176,8 +167,7 @@ public struct HomeView: View {
                                 Image(systemName: "arrow.counterclockwise.circle.fill")
                                 Text("Đặt lại toàn bộ tiến độ học tập")
                             }
-                            .font(.footnote)
-                            .fontWeight(.bold)
+                            .font(.footnote.weight(.bold))
                             .foregroundColor(.red)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
@@ -212,8 +202,7 @@ public struct HomeView: View {
                 .foregroundColor(color)
 
             Text(count)
-                .font(.title3)
-                .fontWeight(.bold)
+                .font(.title3.weight(.bold))
                 .foregroundColor(.primary)
 
             Text(title)
@@ -232,8 +221,7 @@ public struct HomeView: View {
             switch score {
             case 2:
                 Text("Thuộc làu")
-                    .font(.caption2)
-                    .fontWeight(.bold)
+                    .font(.caption2.weight(.bold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(Color.green.opacity(0.15))
@@ -241,8 +229,7 @@ public struct HomeView: View {
                     .cornerRadius(6)
             case 1:
                 Text("Mang máng")
-                    .font(.caption2)
-                    .fontWeight(.bold)
+                    .font(.caption2.weight(.bold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(Color.orange.opacity(0.15))
@@ -250,8 +237,7 @@ public struct HomeView: View {
                     .cornerRadius(6)
             default:
                 Text("Chưa thuộc")
-                    .font(.caption2)
-                    .fontWeight(.bold)
+                    .font(.caption2.weight(.bold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(Color.red.opacity(0.12))

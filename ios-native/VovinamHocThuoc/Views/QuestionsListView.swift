@@ -73,8 +73,7 @@ public struct QuestionsListView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Text("CÂU #\(q.number)")
-                                        .font(.caption2)
-                                        .fontWeight(.bold)
+                                        .font(.caption2.weight(.bold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.12))
@@ -87,8 +86,7 @@ public struct QuestionsListView: View {
                                 }
 
                                 Text(q.title)
-                                    .font(.headline)
-                                    .fontWeight(.bold)
+                                    .font(.headline.weight(.bold))
                                     .foregroundColor(.primary)
 
                                 Text(q.easyAnswer.headlineQuote)
@@ -110,8 +108,7 @@ public struct QuestionsListView: View {
     private func filterPill(label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.caption)
-                .fontWeight(isSelected ? .bold : .medium)
+                .font(.caption.weight(isSelected ? .bold : .medium))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(isSelected ? Color.blue : Color(.systemGray6))
@@ -125,8 +122,7 @@ public struct QuestionsListView: View {
             switch score {
             case 2:
                 Text("Thuộc làu")
-                    .font(.caption2)
-                    .fontWeight(.bold)
+                    .font(.caption2.weight(.bold))
                     .padding(.horizontal, 7)
                     .padding(.vertical, 2)
                     .background(Color.green.opacity(0.15))
@@ -134,8 +130,7 @@ public struct QuestionsListView: View {
                     .cornerRadius(6)
             case 1:
                 Text("Mang máng")
-                    .font(.caption2)
-                    .fontWeight(.bold)
+                    .font(.caption2.weight(.bold))
                     .padding(.horizontal, 7)
                     .padding(.vertical, 2)
                     .background(Color.orange.opacity(0.15))
@@ -143,8 +138,7 @@ public struct QuestionsListView: View {
                     .cornerRadius(6)
             default:
                 Text("Chưa thuộc")
-                    .font(.caption2)
-                    .fontWeight(.bold)
+                    .font(.caption2.weight(.bold))
                     .padding(.horizontal, 7)
                     .padding(.vertical, 2)
                     .background(Color.red.opacity(0.12))

@@ -45,8 +45,7 @@ public struct ExamView: View {
                 .foregroundColor(.blue)
 
             Text("Phòng Thi Thử Vấn Đáp")
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(.title2.weight(.bold))
 
             Text("Hệ thống sẽ bốc ngẫu nhiên câu hỏi trong ngân hàng 10 câu lý thuyết để bạn tự kiểm tra phản xạ vấn đáp như trong kỳ thi thăng đai thực tế.")
                 .font(.subheadline)
@@ -91,8 +90,7 @@ public struct ExamView: View {
                     // Progress
                     HStack {
                         Text("Câu \(currentExamIndex + 1)/\(examQuestions.count)")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
+                            .font(.subheadline.weight(.bold))
                             .foregroundColor(.blue)
 
                         Spacer()
@@ -106,13 +104,11 @@ public struct ExamView: View {
                     // Question Card
                     VStack(alignment: .leading, spacing: 12) {
                         Text("CÂU HỎI VẤN ĐÁP")
-                            .font(.caption2)
-                            .fontWeight(.black)
+                            .font(.caption2.weight(.black))
                             .foregroundColor(.blue)
 
                         Text(q.title)
-                            .font(.title3)
-                            .fontWeight(.bold)
+                            .font(.title3.weight(.bold))
                             .foregroundColor(.primary)
                     }
                     .padding()
@@ -126,13 +122,11 @@ public struct ExamView: View {
                     if isAnswerRevealed {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("Đáp án mẫu chuẩn", systemImage: "checkmark.seal.fill")
-                                .font(.caption)
-                                .fontWeight(.bold)
+                                .font(.caption.weight(.bold))
                                 .foregroundColor(.green)
 
                             Text(q.easyAnswer.headlineQuote)
-                                .font(.headline)
-                                .fontWeight(.bold)
+                                .font(.headline.weight(.bold))
                                 .foregroundColor(.primary)
 
                             Text(q.easyAnswer.coreMeaning)
@@ -148,15 +142,13 @@ public struct ExamView: View {
                         // Đánh giá điểm thi
                         VStack(spacing: 8) {
                             Text("TỰ CHẤM ĐIỂM CÂU NÀY")
-                                .font(.caption2)
-                                .fontWeight(.bold)
+                                .font(.caption2.weight(.bold))
                                 .foregroundColor(.secondary)
 
                             HStack(spacing: 10) {
                                 Button(action: { recordExamScore(0) }) {
                                     Text("Chưa đạt (0đ)")
-                                        .font(.footnote)
-                                        .fontWeight(.bold)
+                                        .font(.footnote.weight(.bold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color.red.opacity(0.15))
@@ -166,8 +158,7 @@ public struct ExamView: View {
 
                                 Button(action: { recordExamScore(1) }) {
                                     Text("Đạt 50% (1đ)")
-                                        .font(.footnote)
-                                        .fontWeight(.bold)
+                                        .font(.footnote.weight(.bold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color.orange.opacity(0.15))
@@ -177,8 +168,7 @@ public struct ExamView: View {
 
                                 Button(action: { recordExamScore(2) }) {
                                     Text("Xuất sắc (2đ)")
-                                        .font(.footnote)
-                                        .fontWeight(.bold)
+                                        .font(.footnote.weight(.bold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color.green.opacity(0.15))
@@ -222,8 +212,7 @@ public struct ExamView: View {
                 .foregroundColor(isExamPassed ? .yellow : .orange)
 
             Text(isExamPassed ? "Chúc Mừng! Đã Đạt Yêu Cầu" : "Cần Ôn Luyện Thêm")
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(.title2.weight(.bold))
 
             Text("Kết quả: \(totalCurrentExamScore)/\(maxExamPoints) điểm (\(examPercent)%)")
                 .font(.headline)

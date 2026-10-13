@@ -34,8 +34,8 @@ public struct SettingsView: View {
                             Image(systemName: "arrow.counterclockwise.circle.fill")
                                 .foregroundColor(.red)
                             Text("Đặt lại toàn bộ tiến độ")
+                                .font(.body.weight(.semibold))
                                 .foregroundColor(.red)
-                                .fontWeight(.semibold)
                         }
                     }
                 }
