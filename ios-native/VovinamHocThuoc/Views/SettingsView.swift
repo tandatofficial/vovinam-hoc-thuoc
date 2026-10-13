@@ -2,16 +2,20 @@ import SwiftUI
 import UIKit
 
 public struct SettingsView: View {
-    @ObservedObject var viewModel: StudyViewModel
+    @ObservedObject public var viewModel: StudyViewModel
 
     @State private var showingResetAlert = false
     @State private var showingImportSheet = false
     @State private var importJsonText: String = ""
 
+    public init(viewModel: StudyViewModel) {
+        self.viewModel = viewModel
+    }
+
     public var body: some View {
         NavigationView {
             List {
-                // Section 1: Tiến độ học tập & Đặt lại
+                // MARK: - Section 1: Tiến độ học tập & Đặt lại
                 Section(header: Text("Tiến Độ Học Tập")) {
                     HStack {
                         Text("Ngày học hiện tại")
@@ -32,23 +36,26 @@ public struct SettingsView: View {
                     }) {
                         HStack {
                             Image(systemName: "arrow.counterclockwise.circle.fill")
-                                .foregroundColor(.red)
+                                .foregroundColor(AppTheme.Colors.unlearned)
                             Text("Đặt lại toàn bộ tiến độ")
                                 .font(.body.weight(.semibold))
-                                .foregroundColor(.red)
+                                .foregroundColor(AppTheme.Colors.unlearned)
                         }
                     }
                 }
 
-                // Section 2: Quản lý dữ liệu (Không bị hardcode)
-                Section(header: Text("Dữ Liệu Câu Hỏi (Tùy Biến Động)"), footer: Text("Dữ liệu được lưu trữ trực tiếp dưới dạng tệp JSON trong bộ nhớ máy của bạn, không bị gán cứng (hardcode) và có thể nhập/xuất tùy ý.")) {
+                // MARK: - Section 2: Quản lý dữ liệu động (Không bị hardcode)
+                Section(
+                    header: Text("Dữ Liệu Câu Hỏi (Tùy Biến Động)"),
+                    footer: Text("Dữ liệu được lưu trữ trực tiếp dưới dạng tệp JSON trong bộ nhớ máy của bạn, không bị gán cứng (hardcode) và có thể nhập/xuất tùy ý.")
+                ) {
                     Button(action: {
                         UIPasteboard.general.string = viewModel.exportQuestions()
                         viewModel.showToast("Đã sao chép JSON câu hỏi vào bộ nhớ tạm!")
                     }) {
                         HStack {
                             Image(systemName: "doc.on.doc.fill")
-                                .foregroundColor(.blue)
+                                .foregroundColor(AppTheme.Colors.primary)
                             Text("Sao chép dữ liệu JSON (Xuất)")
                                 .foregroundColor(.primary)
                         }
@@ -60,14 +67,14 @@ public struct SettingsView: View {
                     }) {
                         HStack {
                             Image(systemName: "square.and.arrow.down.fill")
-                                .foregroundColor(.orange)
+                                .foregroundColor(AppTheme.Colors.learning)
                             Text("Chỉnh sửa hoặc nạp JSON mới (Nhập)")
                                 .foregroundColor(.primary)
                         }
                     }
                 }
 
-                // Section 3: Thông tin ứng dụng
+                // MARK: - Section 3: Thông tin ứng dụng
                 Section(header: Text("Thông Tin")) {
                     HStack {
                         Text("Nền tảng")
@@ -116,7 +123,7 @@ public struct SettingsView: View {
                             .font(.system(.caption, design: .monospaced))
                             .padding(8)
                             .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                            .cornerRadius(AppTheme.CornerRadius.medium)
                             .padding(.horizontal)
 
                         Button(action: {
@@ -128,10 +135,11 @@ public struct SettingsView: View {
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
-                                .background(Color.blue)
+                                .background(AppTheme.Colors.primary)
                                 .foregroundColor(.white)
-                                .cornerRadius(12)
+                                .cornerRadius(AppTheme.CornerRadius.medium)
                         }
+                        .buttonStyle(TactileButtonStyle())
                         .padding()
                     }
                     .padding(.top, 8)

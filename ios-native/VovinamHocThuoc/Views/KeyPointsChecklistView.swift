@@ -4,6 +4,10 @@ public struct KeyPointsChecklistView: View {
     public let question: Question
     @State private var checkedItems: [Int: Bool] = [:]
 
+    public init(question: Question) {
+        self.question = question
+    }
+
     private var items: [String] {
         if let kp = question.keyPoints, !kp.isEmpty {
             return kp
@@ -16,14 +20,14 @@ public struct KeyPointsChecklistView: View {
             HStack {
                 Label("Checklist các ý bắt buộc", systemImage: "checklist")
                     .font(.subheadline.weight(.bold))
-                    .foregroundColor(.blue)
+                    .foregroundColor(AppTheme.Colors.primary)
 
                 Spacer()
 
                 let doneCount = checkedItems.filter { $0.value }.count
                 Text("\(doneCount)/\(items.count) ý")
                     .font(.caption.weight(.bold))
-                    .foregroundColor(doneCount == items.count && !items.isEmpty ? .green : .secondary)
+                    .foregroundColor(doneCount == items.count && !items.isEmpty ? AppTheme.Colors.mastered : .secondary)
             }
             .padding(.horizontal)
 
@@ -46,24 +50,24 @@ public struct KeyPointsChecklistView: View {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 20))
-                    .foregroundColor(isChecked ? .green : .secondary)
+                    .foregroundColor(isChecked ? AppTheme.Colors.mastered : .secondary)
                     .padding(.top, 2)
 
                 Text(point)
                     .font(.subheadline.weight(isChecked ? .semibold : .regular))
                     .foregroundColor(isChecked ? .primary : .secondary)
-                    .strikethrough(isChecked, color: .green.opacity(0.6))
+                    .strikethrough(isChecked, color: AppTheme.Colors.mastered.opacity(0.6))
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding()
-            .background(isChecked ? Color.green.opacity(0.08) : Color(.systemBackground))
-            .cornerRadius(12)
+            .background(isChecked ? AppTheme.Colors.masteredBg : Color(.systemBackground))
+            .cornerRadius(AppTheme.CornerRadius.medium)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isChecked ? Color.green.opacity(0.3) : Color(.systemGray5), lineWidth: 1)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                    .stroke(isChecked ? AppTheme.Colors.mastered.opacity(0.3) : AppTheme.Colors.border, lineWidth: 1)
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(TactileButtonStyle())
     }
 }

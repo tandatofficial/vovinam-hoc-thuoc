@@ -8,6 +8,10 @@ public struct ChunkStudyView: View {
     @State private var isMasked: Bool = false
     @State private var learnedChunks: [Int: Bool] = [:]
 
+    public init(question: Question) {
+        self.question = question
+    }
+
     private var chunks: [String] {
         if let c = question.chunks, !c.isEmpty {
             return c
@@ -22,7 +26,7 @@ public struct ChunkStudyView: View {
                 HStack {
                     Text("Đoạn \(activeChunkIndex + 1)/\(chunks.count)")
                         .font(.caption.weight(.bold))
-                        .foregroundColor(.blue)
+                        .foregroundColor(AppTheme.Colors.primary)
 
                     Spacer()
 
@@ -32,7 +36,7 @@ public struct ChunkStudyView: View {
                 }
 
                 ProgressView(value: Double(learnedChunks.filter { $0.value }.count), total: Double(max(1, chunks.count)))
-                    .tint(.blue)
+                    .tint(AppTheme.Colors.primary)
             }
             .padding(.horizontal)
 
@@ -58,8 +62,9 @@ public struct ChunkStudyView: View {
                     .padding(.vertical, 12)
                     .background(activeChunkIndex > 0 ? Color(.systemGray6) : Color(.systemGray6).opacity(0.4))
                     .foregroundColor(activeChunkIndex > 0 ? .primary : .secondary)
-                    .cornerRadius(12)
+                    .cornerRadius(AppTheme.CornerRadius.medium)
                 }
+                .buttonStyle(TactileButtonStyle())
                 .disabled(activeChunkIndex == 0)
 
                 Button(action: {
@@ -75,10 +80,11 @@ public struct ChunkStudyView: View {
                     .font(.subheadline.weight(.bold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(activeChunkIndex < chunks.count - 1 ? Color.blue : Color(.systemGray6).opacity(0.4))
+                    .background(activeChunkIndex < chunks.count - 1 ? AppTheme.Colors.primary : Color(.systemGray6).opacity(0.4))
                     .foregroundColor(activeChunkIndex < chunks.count - 1 ? .white : .secondary)
-                    .cornerRadius(12)
+                    .cornerRadius(AppTheme.CornerRadius.medium)
                 }
+                .buttonStyle(TactileButtonStyle())
                 .disabled(activeChunkIndex >= chunks.count - 1)
             }
             .padding(.horizontal)
@@ -100,7 +106,7 @@ public struct ChunkStudyView: View {
                 }) {
                     Image(systemName: speechService.isSpeaking ? "stop.circle.fill" : "speaker.wave.2.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(speechService.isSpeaking ? .red : .blue)
+                        .foregroundColor(speechService.isSpeaking ? AppTheme.Colors.unlearned : AppTheme.Colors.primary)
                 }
             }
 
@@ -129,8 +135,9 @@ public struct ChunkStudyView: View {
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(Color(.systemGray6))
-                        .cornerRadius(10)
+                        .cornerRadius(AppTheme.CornerRadius.small)
                 }
+                .buttonStyle(TactileButtonStyle())
 
                 Spacer()
 
@@ -142,16 +149,15 @@ public struct ChunkStudyView: View {
                         .font(.footnote.weight(.bold))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(isDone ? Color.green.opacity(0.15) : Color(.systemGray6))
-                        .foregroundColor(isDone ? .green : .primary)
-                        .cornerRadius(10)
+                        .background(isDone ? AppTheme.Colors.masteredBg : Color(.systemGray6))
+                        .foregroundColor(isDone ? AppTheme.Colors.mastered : .primary)
+                        .cornerRadius(AppTheme.CornerRadius.small)
                 }
+                .buttonStyle(TactileButtonStyle())
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+        .appCardStyle()
         .padding(.horizontal)
     }
 }

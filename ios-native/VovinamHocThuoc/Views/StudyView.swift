@@ -1,161 +1,158 @@
 import SwiftUI
 
 public struct StudyView: View {
-    @ObservedObject var viewModel: StudyViewModel
+    @ObservedObject public var viewModel: StudyViewModel
     @StateObject private var speechService = SpeechService.shared
 
-    @State private var fontSizeLevel: Int = 1 // 0: Nhỏ, 1: Chuẩn, 2: To
+    @State private var currentTextSize: CGFloat = 16
 
-    private var currentTextSize: CGFloat {
-        switch fontSizeLevel {
-        case 0: return 15
-        case 2: return 19
-        default: return 17
-        }
+    public init(viewModel: StudyViewModel) {
+        self.viewModel = viewModel
     }
 
     public var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // MARK: - 1. Thanh chọn câu hỏi ngang [#1] -> [#10]
-                questionSelectorBar
+                // MARK: - Thanh Lựa Chọn Câu Hỏi Ngang (#1 đến #10 To Bản)
+                questionNumberSelector
 
+                // MARK: - 4 Chế Độ Học Chuyên Sâu (Segmented Mode Picker)
+                subModePicker
+
+                // MARK: - Nội Dung Chế Độ Học
                 ScrollView {
-                    VStack(spacing: 16) {
-                        // MARK: - 2. Thanh chuyển Sub-Modes (Tổng quan / Từng đoạn / Điền từ / Checklist)
-                        subModePicker
+                    let question = viewModel.currentQuestion
 
-                        if viewModel.selectedSubMode == .chunk {
-                            ChunkStudyView(question: viewModel.currentQuestion)
-                        } else if viewModel.selectedSubMode == .cloze {
-                            FillBlanksView(question: viewModel.currentQuestion)
-                        } else if viewModel.selectedSubMode == .checklist {
-                            KeyPointsChecklistView(question: viewModel.currentQuestion)
-                        } else {
-                            // MARK: - 3. Chế độ Tổng quan 3 Tầng Ghi Nhớ
-                            overviewStudyContent(question: viewModel.currentQuestion)
+                    VStack(spacing: 16) {
+                        switch viewModel.selectedSubMode {
+                        case .overview:
+                            overviewStudyContent(question: question)
+                        case .chunk:
+                            ChunkStudyView(question: question)
+                        case .cloze:
+                            FillBlanksView(question: question)
+                        case .checklist:
+                            KeyPointsChecklistView(question: question)
                         }
 
-                        // MARK: - 4. Thumb-Zone Self Assessment (3 Nút to bản)
-                        selfAssessmentBar(question: viewModel.currentQuestion)
+                        // MARK: - Thanh 3 Nút Tự Chấm Điểm To Bản (Chỉ hiện ở Overview)
+                        if viewModel.selectedSubMode == .overview {
+                            selfAssessmentBar(question: question)
+                        }
                     }
-                    .padding(.bottom, 24)
+                    .padding(.vertical, 12)
                 }
             }
-            .navigationTitle("Luyện Thuộc Lòng")
+            .navigationTitle("Học Bài Võ Đạo")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        fontSizeLevel = (fontSizeLevel + 1) % 3
-                    }) {
-                        HStack(spacing: 2) {
-                            Text("Aa")
-                                .font(.system(size: 15, weight: .bold))
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    // Chỉnh cỡ chữ A- / A+
+                    HStack(spacing: 2) {
+                        Button(action: {
+                            if currentTextSize > 14 { currentTextSize -= 1 }
+                        }) {
+                            Text("A-")
+                                .font(.footnote.weight(.bold))
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                    }
-                }
-
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        viewModel.toggleBookmark(questionId: viewModel.currentQuestion.id)
-                    }) {
-                        Image(systemName: viewModel.currentQuestion.isMarkedFavorite ? "star.fill" : "star")
-                            .foregroundColor(viewModel.currentQuestion.isMarkedFavorite ? .yellow : .primary)
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: - Question Selector Bar
-    private var questionSelectorBar: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(viewModel.questions) { q in
-                        let isSelected = q.id == viewModel.selectedQuestionId
 
                         Button(action: {
-                            viewModel.selectQuestion(id: q.id)
+                            if currentTextSize < 22 { currentTextSize += 1 }
                         }) {
-                            VStack(spacing: 2) {
-                                Text("#\(q.number)")
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(isSelected ? .white : .primary)
-
-                                // Score dot
-                                Circle()
-                                    .fill(scoreColor(q.score))
-                                    .frame(width: 6, height: 6)
-                            }
-                            .frame(width: 44, height: 42)
-                            .background(isSelected ? Color.blue : Color(.systemGray6))
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1.5)
-                            )
+                            Text("A+")
+                                .font(.footnote.weight(.bold))
                         }
-                        .id(q.id)
                     }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-            }
-            .background(Color(.systemBackground))
-            .onChange(of: viewModel.selectedQuestionId) { newId in
-                withAnimation {
-                    proxy.scrollTo(newId, anchor: .center)
+
+                    // Nút Đánh dấu sao / Ghim ôn lại
+                    Button(action: {
+                        viewModel.toggleBookmark(questionId: viewModel.selectedQuestionId)
+                    }) {
+                        Image(systemName: (viewModel.currentQuestion.isBookmarked ?? false) ? "star.fill" : "star")
+                            .foregroundColor(AppTheme.Colors.gold)
+                    }
                 }
             }
         }
     }
 
-    // MARK: - Sub-Mode Picker
+    // MARK: - 1. Question Number Selector (Thanh chọn câu ngang #1 - #10)
+    private var questionNumberSelector: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.questions) { q in
+                    let isSelected = q.id == viewModel.selectedQuestionId
+                    Button(action: {
+                        viewModel.selectQuestion(id: q.id)
+                    }) {
+                        VStack(spacing: 2) {
+                            Text("#\(q.number)")
+                                .font(.subheadline.weight(.bold))
+                                .foregroundColor(isSelected ? .white : .primary)
+
+                            // Dấu chấm màu biểu thị điểm số đã đạt
+                            ScoreBadgeView(score: q.score, style: .compact)
+                        }
+                        .frame(width: 48, height: 48)
+                        .background(isSelected ? AppTheme.Colors.primary : Color(.systemGray6))
+                        .cornerRadius(AppTheme.CornerRadius.medium)
+                    }
+                    .buttonStyle(TactileButtonStyle())
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+        .background(Color(.systemBackground))
+        .overlay(
+            Divider(), alignment: .bottom
+        )
+    }
+
+    // MARK: - 2. SubMode Picker
     private var subModePicker: some View {
-        HStack(spacing: 6) {
-            ForEach(StudySubMode.allCases) { mode in
-                let isSelected = viewModel.selectedSubMode == mode
-
-                Button(action: {
-                    viewModel.selectedSubMode = mode
-                    speechService.stop()
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: mode.iconName)
-                            .font(.system(size: 12))
-                        Text(mode.rawValue)
-                            .font(.system(size: 12, weight: .bold))
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(StudySubMode.allCases) { mode in
+                    let isSelected = viewModel.selectedSubMode == mode
+                    Button(action: {
+                        speechService.stop()
+                        withAnimation { viewModel.selectedSubMode = mode }
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: mode.iconName)
+                            Text(mode.rawValue)
+                        }
+                        .font(.footnote.weight(isSelected ? .bold : .medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(isSelected ? AppTheme.Colors.primary : Color(.systemGray6))
+                        .foregroundColor(isSelected ? .white : .primary)
+                        .cornerRadius(AppTheme.CornerRadius.small)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(isSelected ? Color.blue : Color(.systemGray6))
-                    .foregroundColor(isSelected ? .white : .secondary)
-                    .cornerRadius(10)
                 }
             }
+            .padding(.horizontal)
+            .padding(.vertical, 6)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 4)
+        .background(Color(.systemBackground))
+        .overlay(
+            Divider(), alignment: .bottom
+        )
     }
 
-    // MARK: - Overview Content (3 Tầng)
+    // MARK: - 3. Overview Study Content (3 Tầng Ghi Nhớ)
     private func overviewStudyContent(question: Question) -> some View {
-        VStack(spacing: 14) {
-            // TẦNG 1: CÂU HỎI & THANH AUDIO
+        VStack(spacing: 16) {
+            // TẦNG 1: CÂU HỎI & THANH AUDIO NATIVE
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("CÂU HỎI #\(question.number)")
                         .font(.caption2.weight(.black))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(Color.blue.opacity(0.12))
-                        .foregroundColor(.blue)
+                        .background(AppTheme.Colors.primaryLight)
+                        .foregroundColor(AppTheme.Colors.primary)
                         .cornerRadius(6)
 
                     Spacer()
@@ -171,85 +168,16 @@ public struct StudyView: View {
                     .lineSpacing(4)
 
                 // Thanh Giọng Đọc Native Tiếng Việt
-                VStack(spacing: 10) {
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: speechService.isSpeaking ? "waveform" : "speaker.wave.2.fill")
-                                .font(.system(size: 16))
-                                .foregroundColor(speechService.isSpeaking ? .red : .blue)
-
-                            Text(speechService.isSpeaking ? "Đang đọc mẫu..." : "Giọng đọc Tiếng Việt (Apple vi-VN)")
-                                .font(.caption.weight(.bold))
-                                .foregroundColor(.primary)
-                        }
-
-                        Spacer()
-
-                        // Nút chỉnh tốc độ đọc
-                        HStack(spacing: 4) {
-                            Button(action: { speechService.setSpeedSlow() }) {
-                                Text("0.8x")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .padding(.horizontal, 7)
-                                    .padding(.vertical, 3)
-                                    .background(speechService.speechRate < 0.48 ? Color.blue : Color(.systemGray5))
-                                    .foregroundColor(speechService.speechRate < 0.48 ? .white : .secondary)
-                                    .cornerRadius(6)
-                            }
-
-                            Button(action: { speechService.setSpeedNormal() }) {
-                                Text("1.0x")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .padding(.horizontal, 7)
-                                    .padding(.vertical, 3)
-                                    .background(speechService.speechRate >= 0.48 ? Color.blue : Color(.systemGray5))
-                                    .foregroundColor(speechService.speechRate >= 0.48 ? .white : .secondary)
-                                    .cornerRadius(6)
-                            }
-                        }
-                    }
-
-                    HStack(spacing: 10) {
-                        Button(action: {
-                            let text = "\(question.title). Ý chính: \(question.easyAnswer.headlineQuote). \(question.easyAnswer.coreMeaning)"
-                            speechService.toggle(text)
-                        }) {
-                            HStack {
-                                Image(systemName: speechService.isSpeaking ? "stop.fill" : "play.fill")
-                                Text(speechService.isSpeaking ? "Dừng đọc" : "Đọc câu hỏi & ý chính")
-                            }
-                            .font(.system(size: 13, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 9)
-                            .background(speechService.isSpeaking ? Color.red : Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                        }
-
-                        Button(action: {
-                            speechService.speak(question.title)
-                        }) {
-                            Text("Chỉ câu hỏi")
-                                .font(.system(size: 12, weight: .bold))
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 9)
-                                .background(Color(.systemGray6))
-                                .foregroundColor(.primary)
-                                .cornerRadius(10)
-                        }
-                    }
-                }
-                .padding(12)
-                .background(Color.blue.opacity(0.06))
-                .cornerRadius(12)
+                SpeechPlayerBar(
+                    textToSpeak: "\(question.title). Ý cốt tử: \(question.easyAnswer.headlineQuote). \(question.easyAnswer.coreMeaning)",
+                    labelText: "Giọng đọc Tiếng Việt (Apple vi-VN)"
+                )
             }
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+            .appCardStyle()
             .padding(.horizontal, 16)
 
-            // TẦNG 2: GỢI NHỚ TỪ KHÓA
+            // TẦNG 2: GỢI NHỚ TỪ KHÓA TỐC HÀNH
             VStack(alignment: .leading, spacing: 8) {
                 Button(action: {
                     withAnimation { viewModel.isHintExpanded.toggle() }
@@ -257,7 +185,7 @@ public struct StudyView: View {
                     HStack {
                         Label("Gợi ý từ khóa tốc hành", systemImage: "sparkles")
                             .font(.caption.weight(.bold))
-                            .foregroundColor(.orange)
+                            .foregroundColor(AppTheme.Colors.learning)
 
                         Spacer()
 
@@ -275,13 +203,12 @@ public struct StudyView: View {
                 }
             }
             .padding()
-            .background(Color.orange.opacity(0.08))
-            .cornerRadius(14)
+            .background(AppTheme.Colors.learningBg)
+            .cornerRadius(AppTheme.CornerRadius.medium)
             .padding(.horizontal, 16)
 
             // TẦNG 3: ĐÁP ÁN (DỄ HỌC / NGUYÊN VĂN)
             VStack(alignment: .leading, spacing: 12) {
-                // Tabs chuyển Dễ học vs Nguyên văn
                 Picker("", selection: $viewModel.currentAnswerTab) {
                     Text("Dễ học & Mẹo nhớ").tag(AnswerTabType.easy)
                     Text("Nguyên văn chi tiết").tag(AnswerTabType.full)
@@ -289,13 +216,12 @@ public struct StudyView: View {
                 .pickerStyle(.segmented)
 
                 if viewModel.currentAnswerTab == .easy {
-                    // TAB 1: DỄ HỌC
+                    // TAB 1: DỄ HỌC & Ý CỐT TỬ
                     VStack(alignment: .leading, spacing: 12) {
-                        // Ý cốt tử
                         VStack(alignment: .leading, spacing: 6) {
                             Label("Ý cốt tử bắt buộc thuộc", systemImage: "bookmark.fill")
                                 .font(.caption2.weight(.bold))
-                                .foregroundColor(.orange)
+                                .foregroundColor(AppTheme.Colors.learning)
 
                             Text(question.easyAnswer.headlineQuote)
                                 .font(.system(size: currentTextSize, weight: .bold, design: .rounded))
@@ -303,23 +229,23 @@ public struct StudyView: View {
                                 .lineSpacing(4)
                         }
                         .padding()
-                        .background(Color.yellow.opacity(0.12))
-                        .cornerRadius(12)
+                        .background(AppTheme.Colors.gold.opacity(0.12))
+                        .cornerRadius(AppTheme.CornerRadius.medium)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                                .stroke(AppTheme.Colors.learning.opacity(0.3), lineWidth: 1)
                         )
 
                         // Mẹo nhớ
                         HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "lightbulb.fill")
-                                .foregroundColor(.blue)
+                                .foregroundColor(AppTheme.Colors.primary)
                                 .padding(.top, 2)
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Mẹo nhớ nhanh:")
                                     .font(.caption2.weight(.bold))
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(AppTheme.Colors.primary)
 
                                 Text(question.easyAnswer.mnemonic)
                                     .font(.system(size: currentTextSize - 1, weight: .medium))
@@ -327,8 +253,8 @@ public struct StudyView: View {
                             }
                         }
                         .padding()
-                        .background(Color.blue.opacity(0.06))
-                        .cornerRadius(12)
+                        .background(AppTheme.Colors.primaryLight)
+                        .cornerRadius(AppTheme.CornerRadius.medium)
 
                         // Diễn giải ý nghĩa
                         Text(question.easyAnswer.coreMeaning)
@@ -339,7 +265,6 @@ public struct StudyView: View {
                 } else {
                     // TAB 2: NGUYÊN VĂN CHI TIẾT
                     VStack(alignment: .leading, spacing: 12) {
-                        // Nút nghe toàn văn
                         Button(action: {
                             let full = "\(question.fullAnswer.intro). \(question.fullAnswer.quote ?? ""). " + question.fullAnswer.paragraphs.joined(separator: ". ")
                             speechService.toggle(full)
@@ -351,14 +276,14 @@ public struct StudyView: View {
                             .font(.caption.weight(.bold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
-                            .background(speechService.isSpeaking ? Color.red : Color.blue.opacity(0.12))
-                            .foregroundColor(speechService.isSpeaking ? .white : .blue)
+                            .background(speechService.isSpeaking ? AppTheme.Colors.unlearned : AppTheme.Colors.primaryLight)
+                            .foregroundColor(speechService.isSpeaking ? .white : AppTheme.Colors.primary)
                             .cornerRadius(10)
                         }
 
                         Text(question.fullAnswer.intro)
                             .font(.system(size: currentTextSize, weight: .bold))
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppTheme.Colors.primary)
 
                         if let quote = question.fullAnswer.quote, !quote.isEmpty {
                             Text(quote)
@@ -371,7 +296,7 @@ public struct StudyView: View {
                                 .overlay(
                                     Rectangle()
                                         .frame(width: 4)
-                                        .foregroundColor(.blue),
+                                        .foregroundColor(AppTheme.Colors.primary),
                                     alignment: .leading
                                 )
                         }
@@ -389,14 +314,12 @@ public struct StudyView: View {
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+            .appCardStyle()
             .padding(.horizontal, 16)
         }
     }
 
-    // MARK: - Self Assessment Bar (3 Big Tactile Buttons)
+    // MARK: - 4. Self Assessment Bar (3 Big Tactile Buttons)
     private func selfAssessmentBar(question: Question) -> some View {
         VStack(spacing: 8) {
             Text("TỰ ĐÁNH GIÁ PHẢN XẠ NHỚ")
@@ -411,35 +334,37 @@ public struct StudyView: View {
                     viewModel.nextQuestion()
                 }) {
                     VStack(spacing: 3) {
-                        Text("Quên")
-                            .font(.system(size: 15, weight: .bold))
-                        Text("+0đ")
-                            .font(.caption2)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 22))
+                        Text("Quên (0đ)")
+                            .font(.subheadline.weight(.bold))
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(question.score == 0 ? Color.red : Color.red.opacity(0.12))
-                    .foregroundColor(question.score == 0 ? .white : .red)
-                    .cornerRadius(14)
+                    .background(AppTheme.Colors.unlearnedBg)
+                    .foregroundColor(AppTheme.Colors.unlearned)
+                    .cornerRadius(AppTheme.CornerRadius.medium)
                 }
+                .buttonStyle(TactileButtonStyle())
 
-                // 2. Nhớ mang máng (1đ)
+                // 2. Mang máng (1đ)
                 Button(action: {
                     viewModel.updateScore(questionId: question.id, score: 1)
                     viewModel.nextQuestion()
                 }) {
                     VStack(spacing: 3) {
-                        Text("Mang máng")
-                            .font(.system(size: 15, weight: .bold))
-                        Text("+1đ")
-                            .font(.caption2)
+                        Image(systemName: "questionmark.circle.fill")
+                            .font(.system(size: 22))
+                        Text("Mang máng (1đ)")
+                            .font(.subheadline.weight(.bold))
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(question.score == 1 ? Color.orange : Color.orange.opacity(0.12))
-                    .foregroundColor(question.score == 1 ? .white : .orange)
-                    .cornerRadius(14)
+                    .background(AppTheme.Colors.learningBg)
+                    .foregroundColor(AppTheme.Colors.learning)
+                    .cornerRadius(AppTheme.CornerRadius.medium)
                 }
+                .buttonStyle(TactileButtonStyle())
 
                 // 3. Thuộc làu (2đ)
                 Button(action: {
@@ -447,31 +372,22 @@ public struct StudyView: View {
                     viewModel.nextQuestion()
                 }) {
                     VStack(spacing: 3) {
-                        Text("Thuộc làu")
-                            .font(.system(size: 15, weight: .bold))
-                        Text("+2đ")
-                            .font(.caption2)
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 22))
+                        Text("Thuộc làu (2đ)")
+                            .font(.subheadline.weight(.bold))
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(question.score == 2 ? Color.green : Color.green.opacity(0.12))
-                    .foregroundColor(question.score == 2 ? .white : .green)
-                    .cornerRadius(14)
+                    .background(AppTheme.Colors.masteredBg)
+                    .foregroundColor(AppTheme.Colors.mastered)
+                    .cornerRadius(AppTheme.CornerRadius.medium)
                 }
+                .buttonStyle(TactileButtonStyle())
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(18)
-        .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+        .appCardStyle()
         .padding(.horizontal, 16)
-    }
-
-    private func scoreColor(_ score: Int) -> Color {
-        switch score {
-        case 2: return .green
-        case 1: return .orange
-        default: return .red
-        }
     }
 }

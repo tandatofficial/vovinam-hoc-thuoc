@@ -37,6 +37,7 @@ public struct MainTabView: View {
                     }
                     .tag(4)
             }
+            .accentColor(AppTheme.Colors.primary)
 
             // Toast feedback
             if let toast = viewModel.toastMessage {

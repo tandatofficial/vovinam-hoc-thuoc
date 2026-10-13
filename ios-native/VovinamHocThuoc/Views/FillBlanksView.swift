@@ -2,18 +2,23 @@ import SwiftUI
 
 public struct FillBlanksView: View {
     public let question: Question
+
     @State private var userAnswers: [Int: String] = [:]
     @State private var isChecked: Bool = false
 
+    public init(question: Question) {
+        self.question = question
+    }
+
     private var clozeItems: [ClozeItem] {
-        if let data = question.clozeData, !data.isEmpty {
-            return data
+        if let items = question.clozeItems, !items.isEmpty {
+            return items
         }
         return [
             ClozeItem(
-                prompt: "Vovinam do Cố Võ sư Sáng tổ {0} sáng lập năm {1} tại {2}.",
-                answers: ["Nguyễn Lộc", "1938", "Hà Nội"],
-                distractors: ["Lê Sáng", "1960", "Sài Gòn"]
+                prompt: "Tôn chỉ Vovinam: Việt Võ Đạo lấy cứu cánh {0} con người làm cứu cánh, lấy {1} làm phương châm.",
+                answers: ["Phục vụ", "Đại đồng"],
+                distractors: ["Chiến đấu", "Đoàn kết", "Bảo vệ"]
             )
         ]
     }
@@ -26,7 +31,7 @@ public struct FillBlanksView: View {
         VStack(alignment: .leading, spacing: 16) {
             Label("Điền từ còn thiếu vào chỗ trống", systemImage: "character.cursor.ibeam")
                 .font(.subheadline.weight(.bold))
-                .foregroundColor(.blue)
+                .foregroundColor(AppTheme.Colors.primary)
                 .padding(.horizontal)
 
             ForEach(Array(clozeItems.enumerated()), id: \.offset) { itemIndex, item in
@@ -37,10 +42,10 @@ public struct FillBlanksView: View {
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color(.systemBackground))
-                        .cornerRadius(14)
+                        .cornerRadius(AppTheme.CornerRadius.medium)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color(.systemGray5), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                                .stroke(AppTheme.Colors.border, lineWidth: 1)
                         )
 
                     // Ngân hàng từ lựa chọn
@@ -64,10 +69,11 @@ public struct FillBlanksView: View {
                                             .font(.footnote.weight(.bold))
                                             .padding(.horizontal, 12)
                                             .padding(.vertical, 8)
-                                            .background(Color.blue.opacity(0.12))
-                                            .foregroundColor(.blue)
-                                            .cornerRadius(10)
+                                            .background(AppTheme.Colors.primaryLight)
+                                            .foregroundColor(AppTheme.Colors.primary)
+                                            .cornerRadius(AppTheme.CornerRadius.small)
                                     }
+                                    .buttonStyle(TactileButtonStyle())
                                 }
                             }
                         }
@@ -82,10 +88,11 @@ public struct FillBlanksView: View {
                                 .font(.footnote.weight(.bold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
-                                .background(Color.blue)
+                                .background(AppTheme.Colors.primary)
                                 .foregroundColor(.white)
-                                .cornerRadius(10)
+                                .cornerRadius(AppTheme.CornerRadius.small)
                         }
+                        .buttonStyle(TactileButtonStyle())
 
                         Button(action: {
                             userAnswers.removeAll()
@@ -97,26 +104,44 @@ public struct FillBlanksView: View {
                                 .padding(.vertical, 10)
                                 .background(Color(.systemGray6))
                                 .foregroundColor(.primary)
-                                .cornerRadius(10)
+                                .cornerRadius(AppTheme.CornerRadius.small)
                         }
+                        .buttonStyle(TactileButtonStyle())
                     }
                 }
                 .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(16)
+                .background(AppTheme.Colors.secondaryCardBackground)
+                .cornerRadius(AppTheme.CornerRadius.large)
                 .padding(.horizontal)
             }
         }
         .padding(.vertical, 8)
     }
 
-    private func renderPromptText(_ prompt: String, answers: [String], itemIndex: Int) -> String {
-        var result = prompt
-        for (i, ans) in answers.enumerated() {
-            let userAns = userAnswers[i]
-            let display = isChecked ? "\(userAns ?? "___") (\(ans))" : (userAns ?? " [......] ")
-            result = result.replacingOccurrences(of: "{\(i)}", with: display)
+    private func renderPromptText(_ prompt: String, answers: [String], itemIndex: Int) -> AttributedString {
+        var result = AttributedString(prompt)
+
+        for (index, answer) in answers.enumerated() {
+            let placeholder = "{\(index)}"
+            if let range = result.range(of: placeholder) {
+                if let userWord = userAnswers[index] {
+                    var filled = AttributedString(" [ \(userWord) ] ")
+                    if isChecked {
+                        let isCorrect = userWord.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ==
+                            answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                        filled.foregroundColor = isCorrect ? AppTheme.Colors.mastered : AppTheme.Colors.unlearned
+                    } else {
+                        filled.foregroundColor = AppTheme.Colors.primary
+                    }
+                    result.replaceSubrange(range, with: filled)
+                } else {
+                    var empty = AttributedString(" [ _____ ] ")
+                    empty.foregroundColor = .secondary
+                    result.replaceSubrange(range, with: empty)
+                }
+            }
         }
+
         return result
     }
 }

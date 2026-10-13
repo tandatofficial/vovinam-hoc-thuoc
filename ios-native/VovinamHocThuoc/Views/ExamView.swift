@@ -1,13 +1,17 @@
 import SwiftUI
 
 public struct ExamView: View {
-    @ObservedObject var viewModel: StudyViewModel
+    @ObservedObject public var viewModel: StudyViewModel
 
     @State private var examQuestions: [Question] = []
     @State private var currentExamIndex: Int = 0
     @State private var isAnswerRevealed: Bool = false
     @State private var isExamFinished: Bool = false
     @State private var examScores: [Int: Int] = [:] // index -> score
+
+    public init(viewModel: StudyViewModel) {
+        self.viewModel = viewModel
+    }
 
     private var maxExamPoints: Int {
         max(1, examQuestions.count * 2)
@@ -37,12 +41,12 @@ public struct ExamView: View {
         }
     }
 
-    // MARK: - Start View
+    // MARK: - 1. Start View
     private var examStartView: some View {
         VStack(spacing: 20) {
             Image(systemName: "graduationcap.circle.fill")
                 .font(.system(size: 72))
-                .foregroundColor(.blue)
+                .foregroundColor(AppTheme.Colors.primary)
 
             Text("Phòng Thi Thử Vấn Đáp")
                 .font(.title2.weight(.bold))
@@ -59,10 +63,11 @@ public struct ExamView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(Color.blue)
+                        .background(AppTheme.Colors.primary)
                         .foregroundColor(.white)
-                        .cornerRadius(14)
+                        .cornerRadius(AppTheme.CornerRadius.medium)
                 }
+                .buttonStyle(TactileButtonStyle())
 
                 Button(action: { startExam(questionCount: 10) }) {
                     Text("Thi toàn diện (Trọn bộ 10 câu)")
@@ -71,8 +76,9 @@ public struct ExamView: View {
                         .padding(.vertical, 14)
                         .background(Color(.systemGray6))
                         .foregroundColor(.primary)
-                        .cornerRadius(14)
+                        .cornerRadius(AppTheme.CornerRadius.medium)
                 }
+                .buttonStyle(TactileButtonStyle())
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
@@ -80,18 +86,18 @@ public struct ExamView: View {
         .padding()
     }
 
-    // MARK: - Active Exam View
+    // MARK: - 2. Active Exam View
     private var examActiveView: some View {
         ScrollView {
             if currentExamIndex < examQuestions.count {
                 let q = examQuestions[currentExamIndex]
 
                 VStack(spacing: 16) {
-                    // Progress
+                    // Header tiến độ bài thi
                     HStack {
                         Text("Câu \(currentExamIndex + 1)/\(examQuestions.count)")
                             .font(.subheadline.weight(.bold))
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppTheme.Colors.primary)
 
                         Spacer()
 
@@ -101,11 +107,11 @@ public struct ExamView: View {
                     }
                     .padding(.horizontal)
 
-                    // Question Card
+                    // Thẻ câu hỏi
                     VStack(alignment: .leading, spacing: 12) {
                         Text("CÂU HỎI VẤN ĐÁP")
                             .font(.caption2.weight(.black))
-                            .foregroundColor(.blue)
+                            .foregroundColor(AppTheme.Colors.primary)
 
                         Text(q.title)
                             .font(.title3.weight(.bold))
@@ -113,9 +119,7 @@ public struct ExamView: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+                    .appCardStyle()
                     .padding(.horizontal)
 
                     // Lật xem đáp án
@@ -123,7 +127,7 @@ public struct ExamView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("Đáp án mẫu chuẩn", systemImage: "checkmark.seal.fill")
                                 .font(.caption.weight(.bold))
-                                .foregroundColor(.green)
+                                .foregroundColor(AppTheme.Colors.mastered)
 
                             Text(q.easyAnswer.headlineQuote)
                                 .font(.headline.weight(.bold))
@@ -135,11 +139,11 @@ public struct ExamView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.green.opacity(0.08))
-                        .cornerRadius(16)
+                        .background(AppTheme.Colors.masteredBg)
+                        .cornerRadius(AppTheme.CornerRadius.large)
                         .padding(.horizontal)
 
-                        // Đánh giá điểm thi
+                        // Nút tự chấm điểm
                         VStack(spacing: 8) {
                             Text("TỰ CHẤM ĐIỂM CÂU NÀY")
                                 .font(.caption2.weight(.bold))
@@ -151,35 +155,37 @@ public struct ExamView: View {
                                         .font(.footnote.weight(.bold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
-                                        .background(Color.red.opacity(0.15))
-                                        .foregroundColor(.red)
-                                        .cornerRadius(12)
+                                        .background(AppTheme.Colors.unlearnedBg)
+                                        .foregroundColor(AppTheme.Colors.unlearned)
+                                        .cornerRadius(AppTheme.CornerRadius.medium)
                                 }
+                                .buttonStyle(TactileButtonStyle())
 
                                 Button(action: { recordExamScore(1) }) {
                                     Text("Đạt 50% (1đ)")
                                         .font(.footnote.weight(.bold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
-                                        .background(Color.orange.opacity(0.15))
-                                        .foregroundColor(.orange)
-                                        .cornerRadius(12)
+                                        .background(AppTheme.Colors.learningBg)
+                                        .foregroundColor(AppTheme.Colors.learning)
+                                        .cornerRadius(AppTheme.CornerRadius.medium)
                                 }
+                                .buttonStyle(TactileButtonStyle())
 
                                 Button(action: { recordExamScore(2) }) {
                                     Text("Xuất sắc (2đ)")
                                         .font(.footnote.weight(.bold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
-                                        .background(Color.green.opacity(0.15))
-                                        .foregroundColor(.green)
-                                        .cornerRadius(12)
+                                        .background(AppTheme.Colors.masteredBg)
+                                        .foregroundColor(AppTheme.Colors.mastered)
+                                        .cornerRadius(AppTheme.CornerRadius.medium)
                                 }
+                                .buttonStyle(TactileButtonStyle())
                             }
                         }
                         .padding()
-                        .background(Color(.systemBackground))
-                        .cornerRadius(16)
+                        .appCardStyle()
                         .padding(.horizontal)
                     } else {
                         Button(action: {
@@ -192,10 +198,11 @@ public struct ExamView: View {
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color.blue)
+                            .background(AppTheme.Colors.primary)
                             .foregroundColor(.white)
-                            .cornerRadius(14)
+                            .cornerRadius(AppTheme.CornerRadius.medium)
                         }
+                        .buttonStyle(TactileButtonStyle())
                         .padding(.horizontal)
                         .padding(.top, 12)
                     }
@@ -204,12 +211,12 @@ public struct ExamView: View {
         }
     }
 
-    // MARK: - Result View
+    // MARK: - 3. Result View
     private var examResultView: some View {
         VStack(spacing: 20) {
             Image(systemName: isExamPassed ? "trophy.fill" : "arrow.triangle.2.circlepath.circle.fill")
                 .font(.system(size: 72))
-                .foregroundColor(isExamPassed ? .yellow : .orange)
+                .foregroundColor(isExamPassed ? AppTheme.Colors.gold : AppTheme.Colors.learning)
 
             Text(isExamPassed ? "Chúc Mừng! Đã Đạt Yêu Cầu" : "Cần Ôn Luyện Thêm")
                 .font(.title2.weight(.bold))
@@ -226,10 +233,11 @@ public struct ExamView: View {
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color.blue)
+                    .background(AppTheme.Colors.primary)
                     .foregroundColor(.white)
-                    .cornerRadius(14)
+                    .cornerRadius(AppTheme.CornerRadius.medium)
             }
+            .buttonStyle(TactileButtonStyle())
             .padding(.horizontal, 32)
             .padding(.top, 16)
         }
@@ -250,9 +258,6 @@ public struct ExamView: View {
 
     private func recordExamScore(_ score: Int) {
         examScores[currentExamIndex] = score
-        let q = examQuestions[currentExamIndex]
-        viewModel.updateScore(questionId: q.id, score: score)
-
         if currentExamIndex < examQuestions.count - 1 {
             currentExamIndex += 1
             isAnswerRevealed = false
