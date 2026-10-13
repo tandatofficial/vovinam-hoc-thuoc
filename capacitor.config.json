@@ -5,11 +5,10 @@
   "bundledWebRuntime": false,
   "ios": {
     "contentInset": "automatic",
-    "preferredContentMode": "mobile",
-    "scheme": "App"
+    "preferredContentMode": "mobile"
   },
   "server": {
     "androidScheme": "https",
-    "iosScheme": "ionic"
+    "iosScheme": "capacitor"
   }
 }

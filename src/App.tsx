@@ -14,9 +14,10 @@ import { ExamView } from './components/ExamView';
 import { MistakeNotebookView } from './components/MistakeNotebookView';
 import { ResetModal } from './components/ResetModal';
 import { ProfileModal } from './components/ProfileModal';
+import { storage } from './utils/storage';
 
 export default function App() {
-  // Load questions from localStorage or fallback
+  // Load questions from local storage or fallback
   const [questions, setQuestions] = useState<QuestionData[]>(() => {
     try {
       const saved = localStorage.getItem('vovinam_questions_v3');
@@ -36,18 +37,63 @@ export default function App() {
     } catch {
       // ignore
     }
-    return 3; // Defaults to Day 3 as shown in screenshots
+    return 3;
   });
 
   const [streakDays, setStreakDays] = useState<number>(3);
   const daysRemaining = Math.max(0, 10 - currentDay);
 
   const [currentTab, setCurrentTab] = useState<TabType>('trang-chu');
-  const [targetStudyQuestionId, setTargetStudyQuestionId] = useState<number>(6);
+  const [targetStudyQuestionId, setTargetStudyQuestionId] = useState<number>(1);
   const [targetStudySubMode, setTargetStudySubMode] = useState<StudySubMode>('overview');
 
   const [isResetModalOpen, setIsResetModalOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
+
+  // Hydrate from native iOS storage (UserDefaults) on launch
+  useEffect(() => {
+    const hydrate = async () => {
+      try {
+        const savedQ = await storage.getItem('vovinam_questions_v3');
+        if (savedQ) {
+          const parsed = JSON.parse(savedQ);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setQuestions(parsed);
+          }
+        }
+        const savedDay = await storage.getItem('vovinam_current_day');
+        if (savedDay) {
+          setCurrentDay(parseInt(savedDay, 10));
+        }
+      } catch {
+        // ignore
+      }
+    };
+    hydrate();
+  }, []);
+
+  // Flush to storage whenever app goes into background or is closed
+  useEffect(() => {
+    const flushData = () => {
+      storage.setItem('vovinam_questions_v3', JSON.stringify(questions));
+      storage.setItem('vovinam_current_day', currentDay.toString());
+    };
+
+    window.addEventListener('beforeunload', flushData);
+    window.addEventListener('pagehide', flushData);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        flushData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', flushData);
+      window.removeEventListener('pagehide', flushData);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [questions, currentDay]);
 
   // Sync hash routing
   useEffect(() => {
@@ -73,16 +119,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Helper to persist questions
+  // Helper to persist questions to both localStorage and native iOS UserDefaults
   const saveQuestions = (updated: QuestionData[]) => {
-    try {
-      localStorage.setItem('vovinam_questions_v3', JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
+    storage.setItem('vovinam_questions_v3', JSON.stringify(updated));
   };
 
-  // Save questions score to localStorage
+  // Save questions score
   const handleUpdateQuestionScore = (id: number, score: number) => {
     setQuestions((prev) => {
       const updated = prev.map((q) => {
@@ -153,9 +195,9 @@ export default function App() {
     handleSelectTab('thi-thu');
   };
 
-  const handlePracticeSingle = (id: number) => {
+  const handlePracticeSingle = (id: number, subMode: StudySubMode = 'overview') => {
     setTargetStudyQuestionId(id);
-    setTargetStudySubMode('overview');
+    setTargetStudySubMode(subMode);
     handleSelectTab('hoc-bai');
   };
 
@@ -167,23 +209,15 @@ export default function App() {
 
   const handleSetCurrentDay = (day: number) => {
     setCurrentDay(day);
-    try {
-      localStorage.setItem('vovinam_current_day', day.toString());
-    } catch {
-      // ignore
-    }
+    storage.setItem('vovinam_current_day', day.toString());
   };
 
   const handleResetProgress = () => {
     setQuestions(INITIAL_QUESTIONS);
     setCurrentDay(3);
     setStreakDays(3);
-    try {
-      localStorage.removeItem('vovinam_questions_v3');
-      localStorage.removeItem('vovinam_current_day');
-    } catch {
-      // ignore
-    }
+    storage.removeItem('vovinam_questions_v3');
+    storage.removeItem('vovinam_current_day');
   };
 
   const mistakeCount = questions.filter(
