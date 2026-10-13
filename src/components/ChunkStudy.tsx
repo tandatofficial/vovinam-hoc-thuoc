@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QuestionData } from '../data/questions';
+import { vnSpeech } from '../utils/tts';
 
 interface ChunkStudyProps {
   question: QuestionData;
@@ -17,25 +18,16 @@ export const ChunkStudy: React.FC<ChunkStudyProps> = ({ question }) => {
   const [learnedChunks, setLearnedChunks] = useState<Record<number, boolean>>({});
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
 
+  useEffect(() => {
+    return vnSpeech.addListener((speaking) => setIsSpeaking(speaking));
+  }, []);
+
   const currentChunk = chunks[activeChunkIndex] || chunks[0];
   const totalChunks = chunks.length;
   const progressPercent = Math.round(((Object.keys(learnedChunks).length) / totalChunks) * 100);
 
   const handleSpeak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      if (isSpeaking) {
-        setIsSpeaking(false);
-        return;
-      }
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'vi-VN';
-      utterance.rate = 0.92;
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      setIsSpeaking(true);
-      window.speechSynthesis.speak(utterance);
-    }
+    vnSpeech.toggle(text);
   };
 
   const handleToggleLearned = (index: number) => {

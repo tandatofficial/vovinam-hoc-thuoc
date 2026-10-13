@@ -3,6 +3,7 @@ import { QuestionData } from '../data/questions';
 import { ChunkStudy } from './ChunkStudy';
 import { FillBlanks } from './FillBlanks';
 import { KeyPointsChecklist } from './KeyPointsChecklist';
+import { vnSpeech, VoiceSpeed } from '../utils/tts';
 
 export type StudySubMode = 'overview' | 'chunk' | 'cloze' | 'checklist';
 
@@ -30,8 +31,14 @@ export const StudyView: React.FC<StudyViewProps> = ({
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
   const [hasUsedHint, setHasUsedHint] = useState<boolean>(true);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [voiceSpeed, setVoiceSpeed] = useState<VoiceSpeed>(0.8 as VoiceSpeed);
   const [showHintWarning, setShowHintWarning] = useState<boolean>(false);
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xl'>('normal');
+
+  // Sync listener with vnSpeech
+  useEffect(() => {
+    return vnSpeech.addListener((speaking) => setIsSpeaking(speaking));
+  }, []);
 
   // Sync when initialQuestionId changes from navigation
   useEffect(() => {
@@ -54,22 +61,14 @@ export const StudyView: React.FC<StudyViewProps> = ({
   const currentIndex = questions.findIndex((q) => q.id === currentId);
   const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
 
-  // Handle TTS
+  // Handle Vietnamese TTS
   const handleSpeak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      if (isSpeaking) {
-        setIsSpeaking(false);
-        return;
-      }
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'vi-VN';
-      utterance.rate = 0.95;
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      setIsSpeaking(true);
-      window.speechSynthesis.speak(utterance);
-    }
+    vnSpeech.toggle(text);
+  };
+
+  const handleSetSpeed = (newSpeed: VoiceSpeed) => {
+    setVoiceSpeed(newSpeed);
+    vnSpeech.setSpeed(newSpeed);
   };
 
   const handleSelectScore = (score: number) => {
@@ -83,8 +82,7 @@ export const StudyView: React.FC<StudyViewProps> = ({
   };
 
   const handleNextQuestion = () => {
-    window.speechSynthesis?.cancel();
-    setIsSpeaking(false);
+    vnSpeech.stop();
     setShowHintWarning(false);
     if (currentIndex < questions.length - 1) {
       const nextQ = questions[currentIndex + 1];
@@ -105,8 +103,7 @@ export const StudyView: React.FC<StudyViewProps> = ({
   };
 
   const handlePrevQuestion = () => {
-    window.speechSynthesis?.cancel();
-    setIsSpeaking(false);
+    vnSpeech.stop();
     setShowHintWarning(false);
     if (currentIndex > 0) {
       const prevQ = questions[currentIndex - 1];
@@ -345,30 +342,83 @@ export const StudyView: React.FC<StudyViewProps> = ({
               {currentQuestion.title}
             </h2>
 
-            {/* Coach Speech Trigger Card */}
-            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-surface-subtle border border-border-subtle">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[18px]">record_voice_over</span>
+            {/* Thanh Giọng Đọc Tiếng Việt Chuẩn */}
+            <div className="flex flex-col gap-2 p-3 rounded-2xl bg-gradient-to-r from-primary/10 via-surface-subtle to-secondary/10 border border-primary/20">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                    isSpeaking ? 'bg-score-forgot text-white animate-pulse' : 'bg-primary/20 text-primary'
+                  }`}>
+                    <span className="material-symbols-outlined text-[18px]">
+                      {isSpeaking ? 'graphic_eq' : 'record_voice_over'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                      Giọng đọc Tiếng Việt
+                      {isSpeaking && (
+                        <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-score-forgot/15 text-score-forgot font-bold">
+                          Đang đọc...
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[11px] text-on-surface-variant line-clamp-1">
+                      {isSpeaking ? 'Chạm để dừng đọc bất cứ lúc nào' : 'Nghe giọng đọc Tiếng Việt chuẩn để nhẩm theo'}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-body-sm font-medium text-on-surface-variant leading-tight">
-                  Tập đọc to câu hỏi và nhẩm câu trả lời trước khi lật đáp án!
-                </p>
+
+                {/* Tốc độ đọc */}
+                <div className="flex items-center gap-1 bg-surface-card p-1 rounded-xl border border-border-subtle shrink-0">
+                  <button
+                    onClick={() => handleSetSpeed(0.8 as VoiceSpeed)}
+                    className={`px-2 py-1 text-xs font-bold rounded-lg transition-all ${
+                      voiceSpeed === 0.8
+                        ? 'bg-primary text-on-primary shadow-xs'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                    title="Đọc chậm để thuộc lòng"
+                  >
+                    0.8x
+                  </button>
+                  <button
+                    onClick={() => handleSetSpeed(1.0 as VoiceSpeed)}
+                    className={`px-2 py-1 text-xs font-bold rounded-lg transition-all ${
+                      voiceSpeed === 1.0
+                        ? 'bg-primary text-on-primary shadow-xs'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                    title="Tốc độ chuẩn"
+                  >
+                    1.0x
+                  </button>
+                </div>
               </div>
 
-              <button
-                onClick={() => handleSpeak(`${currentQuestion.title}. ${currentQuestion.easyAnswer.coreMeaning}`)}
-                className={`p-2 rounded-xl transition-all active:scale-95 shrink-0 ${
-                  isSpeaking
-                    ? 'bg-score-forgot text-white shadow-xs'
-                    : 'bg-primary text-on-primary hover:brightness-105 shadow-xs'
-                }`}
-                title="Đọc to câu hỏi và đáp án"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  {isSpeaking ? 'stop_circle' : 'volume_up'}
-                </span>
-              </button>
+              {/* Action buttons */}
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => handleSpeak(`${currentQuestion.title}. Ý chính: ${currentQuestion.easyAnswer.headlineQuote}. ${currentQuestion.easyAnswer.coreMeaning}`)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs transition-all active:scale-98 shadow-xs ${
+                    isSpeaking
+                      ? 'bg-score-forgot text-white shadow-score-forgot/30'
+                      : 'bg-primary text-on-primary hover:brightness-105 shadow-primary/20'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {isSpeaking ? 'stop_circle' : 'volume_up'}
+                  </span>
+                  <span>{isSpeaking ? 'Dừng đọc' : 'Đọc câu hỏi & ý chính'}</span>
+                </button>
+
+                <button
+                  onClick={() => handleSpeak(currentQuestion.title)}
+                  className="px-3 py-2.5 rounded-xl bg-surface-card hover:bg-surface-subtle text-on-surface border border-border-subtle font-bold text-xs transition-all active:scale-95 shrink-0"
+                  title="Chỉ đọc câu hỏi"
+                >
+                  Chỉ đọc câu hỏi
+                </button>
+              </div>
             </div>
           </div>
 
@@ -498,6 +548,33 @@ export const StudyView: React.FC<StudyViewProps> = ({
                 {/* TAB 2: NGUYÊN VĂN CHI TIẾT */}
                 {answerTab === 'full' && (
                   <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-primary/10 border border-primary/20">
+                      <div className="flex items-center gap-2 text-xs font-bold text-primary">
+                        <span className="material-symbols-outlined text-[18px]">menu_book</span>
+                        <span>Nghe đọc toàn văn nguyên văn</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const fullText = [
+                            currentQuestion.fullAnswer.intro,
+                            currentQuestion.fullAnswer.quote,
+                            ...currentQuestion.fullAnswer.paragraphs
+                          ].filter(Boolean).join('. ');
+                          handleSpeak(fullText);
+                        }}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-xs ${
+                          isSpeaking
+                            ? 'bg-score-forgot text-white'
+                            : 'bg-primary text-on-primary hover:brightness-105'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">
+                          {isSpeaking ? 'stop' : 'volume_up'}
+                        </span>
+                        <span>{isSpeaking ? 'Dừng đọc' : 'Nghe toàn bài'}</span>
+                      </button>
+                    </div>
+
                     <div className="p-4 rounded-xl bg-surface-subtle text-on-surface flex flex-col gap-3 border border-border-subtle">
                       <p className="font-bold text-primary text-[16px]">{currentQuestion.fullAnswer.intro}</p>
 
