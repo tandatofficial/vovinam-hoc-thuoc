@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 100 700;
+  src: url('./assets/fonts/material-symbols-outlined.woff2') format('woff2');
+  font-display: block;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
 @theme {
   --color-primary: #00288e;
   --color-primary-container: #1e40af;
@@ -80,8 +105,8 @@
 .gap-space-xs { gap: 0.25rem; }
 .mb-space-md { margin-bottom: 1rem; }
 .mb-space-lg { margin-bottom: 1.5rem; }
-.pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px); }
-.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px); }
+.pt-safe { padding-top: max(env(safe-area-inset-top, 0px), 12px); }
 
 .font-headline-md {
   font-size: 18px;

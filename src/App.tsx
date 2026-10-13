@@ -201,7 +201,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-[640px] mx-auto px-space-md pt-20 pb-24 bg-surface-bg flex flex-col">
+      <main className="flex-1 w-full max-w-[640px] mx-auto px-space-md pt-[calc(env(safe-area-inset-top,0px)+4.75rem)] pb-[calc(env(safe-area-inset-bottom,0px)+5.5rem)] bg-surface-bg flex flex-col">
         {currentTab === 'trang-chu' && (
           <HomeView
             questions={questions}
