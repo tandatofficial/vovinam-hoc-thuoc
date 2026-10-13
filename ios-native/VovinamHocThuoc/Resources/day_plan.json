@@ -1,0 +1,153 @@
+[
+  {
+    "day": 1,
+    "label": "Ngày 1: Câu 1–2",
+    "focus": "Phù hiệu Vovinam & 3 Mục đích môn phái",
+    "description": "Nền tảng triết lý võ đạo căn bản",
+    "assignedQuestionIds": [
+      1,
+      2
+    ],
+    "isCompleted": true,
+    "isToday": false
+  },
+  {
+    "day": 2,
+    "label": "Ngày 2: Câu 3–4",
+    "focus": "Danh dự võ sĩ & 5 Tôn chỉ môn phái",
+    "description": "Đạo đức và tôn chỉ hành đạo",
+    "assignedQuestionIds": [
+      3,
+      4
+    ],
+    "isCompleted": true,
+    "isToday": false
+  },
+  {
+    "day": 3,
+    "label": "Ngày 3: Câu 5–6",
+    "focus": "Sống trong sạch & Điều tâm niệm số 6",
+    "description": "Đạo hạnh và phương pháp học tập 5 điều",
+    "assignedQuestionIds": [
+      5,
+      6
+    ],
+    "isCompleted": false,
+    "isToday": true
+  },
+  {
+    "day": 4,
+    "label": "Ngày 4: Câu 7–8",
+    "focus": "Điều tâm niệm số 7 & số 8",
+    "description": "4 Đức tính nếp sống & Ý chí đanh thép",
+    "assignedQuestionIds": [
+      7,
+      8
+    ],
+    "isCompleted": false,
+    "isToday": false
+  },
+  {
+    "day": 5,
+    "label": "Ngày 5: Câu 9–10",
+    "focus": "Điều tâm niệm số 9 & số 10",
+    "description": "Nhận định tháo vát & Đỉnh cao đức sống",
+    "assignedQuestionIds": [
+      9,
+      10
+    ],
+    "isCompleted": false,
+    "isToday": false
+  },
+  {
+    "day": 6,
+    "label": "Ngày 6: Ôn sâu Câu 1–5",
+    "focus": "Rà soát phản xạ nhớ nửa đầu",
+    "description": "Củng cố vững chắc 5 câu lý thuyết trọng tâm",
+    "assignedQuestionIds": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "isCompleted": false,
+    "isToday": false
+  },
+  {
+    "day": 7,
+    "label": "Ngày 7: Ôn sâu Câu 6–10",
+    "focus": "Tâm niệm và phần phân tích chi tiết",
+    "description": "Củng cố vững chắc 5 điều tâm niệm nửa sau",
+    "assignedQuestionIds": [
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "isCompleted": false,
+    "isToday": false
+  },
+  {
+    "day": 8,
+    "label": "Ngày 8: Đảo ngẫu nhiên 10 câu",
+    "focus": "Luyện phản xạ chống học vẹt",
+    "description": "Bốc thăm câu hỏi ngẫu nhiên tăng độ nhạy",
+    "assignedQuestionIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "isCompleted": false,
+    "isToday": false
+  },
+  {
+    "day": 9,
+    "label": "Ngày 9: Thi thử vấn đáp",
+    "focus": "Mô phỏng áp lực phòng thi (10 câu)",
+    "description": "Bấm giờ thực tế 15 phút, tính điểm chuẩn sát hạch",
+    "assignedQuestionIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "isCompleted": false,
+    "isToday": false
+  },
+  {
+    "day": 10,
+    "label": "Ngày 10: NGÀY THI THẬT",
+    "focus": "Ôn siêu tốc 5 phút trước khi lên thảm",
+    "description": "Tự tin, định tâm, bình tĩnh vấn đáp xuất sắc",
+    "assignedQuestionIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "isCompleted": false,
+    "isToday": false,
+    "isExamDay": true
+  }
+]

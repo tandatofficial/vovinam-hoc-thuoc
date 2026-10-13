@@ -1,0 +1,23 @@
+name: VovinamHocThuoc
+options:
+  bundleIdPrefix: com.vovinam
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  VovinamHocThuoc:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: VovinamHocThuoc
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.vovinam.hocthuoc
+      PRODUCT_NAME: "VovinamHocThuoc"
+      INFOPLIST_FILE: VovinamHocThuoc/Info.plist
+      MARKETING_VERSION: "1.0.0"
+      CURRENT_PROJECT_VERSION: "1"
+      SWIFT_VERSION: "5.0"
+      GENERATE_INFOPLIST_FILE: NO
+      CODE_SIGNING_ALLOWED: NO
+      CODE_SIGNING_REQUIRED: NO
+      CODE_SIGN_IDENTITY: ""

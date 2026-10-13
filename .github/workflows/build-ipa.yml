@@ -1,4 +1,4 @@
-name: Build IPA for TrollStore (iOS 15)
+name: Build IPA for TrollStore (iOS 15 Native Swift)
 
 on:
   push:
@@ -6,59 +6,49 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ipa:
+  build-native-swift-ipa:
     runs-on: macos-14
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build Web Assets (Vite)
-        run: npm run build
-
-      - name: Install ldid
-        run: brew install ldid
-
-      - name: Add and Sync iOS Platform via Capacitor
+      - name: Install xcodegen & ldid
         run: |
-          npx cap add ios || true
-          npx cap sync ios
+          brew install xcodegen ldid
 
-      - name: Build Xcode Archive (No Code Signing for TrollStore)
+      - name: Generate Xcode Project from project.yml
+        run: |
+          cd ios-native
+          xcodegen generate
+
+      - name: Build Xcode Archive (Native SwiftUI - iOS 15 Target)
         run: |
           xcodebuild clean archive \
-            -workspace ios/App/App.xcworkspace \
-            -scheme App \
+            -project ios-native/VovinamHocThuoc.xcodeproj \
+            -scheme VovinamHocThuoc \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -archivePath build/App.xcarchive \
+            -archivePath build/VovinamHocThuoc.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             IPHONEOS_DEPLOYMENT_TARGET=15.0
 
-      - name: Package into IPA with Ad-Hoc Entitlements
+      - name: Package Native IPA for TrollStore
         run: |
           mkdir -p Payload
-          cp -R build/App.xcarchive/Products/Applications/App.app Payload/
+          cp -R build/VovinamHocThuoc.xcarchive/Products/Applications/VovinamHocThuoc.app Payload/
           
-          # Fake-sign binary using ldid for clean TrollStore installation
-          ldid -S Payload/App.app/App || true
+          # Fake-sign using ldid for TrollStore sandbox bypass
+          ldid -S Payload/VovinamHocThuoc.app/VovinamHocThuoc || true
           
           # Create IPA archive
           zip -r9 VovinamHocThuoc.ipa Payload
           ls -lh VovinamHocThuoc.ipa
 
-      - name: Upload IPA Artifact
+      - name: Upload Native Swift IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VovinamHocThuoc-iOS15-TrollStore
+          name: VovinamHocThuoc-NativeSwift-iOS15
           path: VovinamHocThuoc.ipa
           retention-days: 14
