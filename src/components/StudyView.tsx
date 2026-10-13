@@ -31,6 +31,7 @@ export const StudyView: React.FC<StudyViewProps> = ({
   const [hasUsedHint, setHasUsedHint] = useState<boolean>(true);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [showHintWarning, setShowHintWarning] = useState<boolean>(false);
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xl'>('normal');
 
   // Sync when initialQuestionId changes from navigation
   useEffect(() => {
@@ -118,184 +119,188 @@ export const StudyView: React.FC<StudyViewProps> = ({
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'mastered':
-        return 'Đã vững';
-      case 'learning':
-        return 'Đang học';
-      case 'review':
-        return 'Cần ôn gấp';
-      default:
-        return 'Học mới';
-    }
+  const toggleFontSize = () => {
+    if (fontSize === 'normal') setFontSize('large');
+    else if (fontSize === 'large') setFontSize('xl');
+    else setFontSize('normal');
   };
+
+  const textClass = {
+    normal: 'text-[15px] leading-relaxed',
+    large: 'text-[17px] leading-relaxed',
+    xl: 'text-[19px] leading-relaxed font-medium',
+  }[fontSize];
 
   return (
     <div className="flex flex-col w-full pb-8">
-      {/* Progress & Session Metadata */}
-      <div className="flex flex-col gap-space-sm mb-space-md">
+      {/* Top Session Progress Bar */}
+      <div className="flex flex-col gap-2 mb-3 bg-surface-card p-3 rounded-2xl border border-border-subtle shadow-xs">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-space-xs">
-            <span className="font-headline-md text-headline-md text-primary">
-              Câu {currentQuestion.number}/10
+          <div className="flex items-center gap-2">
+            <span className="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold text-label-md flex items-center justify-center shadow-xs">
+              {currentQuestion.number}
             </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
-            <span className="font-label-sm text-label-sm uppercase px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-bold">
-              {getStatusLabel(currentQuestion.status)}
+            <span className="font-label-md text-label-md font-bold text-on-surface">
+              Câu {currentQuestion.number} / {questions.length}
+            </span>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-surface-subtle text-on-surface-variant uppercase border border-border-subtle">
+              {currentQuestion.category}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            {/* Font size toggle button */}
+            <button
+              onClick={toggleFontSize}
+              className="px-2 py-1 rounded-lg bg-surface-subtle hover:bg-surface-container text-label-sm font-bold text-primary border border-border-subtle transition-colors flex items-center gap-0.5"
+              title="Chỉnh cỡ chữ đọc"
+            >
+              <span className="material-symbols-outlined text-[15px]">format_size</span>
+              <span>{fontSize === 'normal' ? 'Chuẩn' : fontSize === 'large' ? 'To' : 'Rất to'}</span>
+            </button>
+
+            {/* Bookmark button */}
             {onToggleBookmark && (
               <button
                 onClick={() => onToggleBookmark(currentQuestion.id)}
-                className={`p-1 rounded-full transition-colors ${
+                className={`p-1.5 rounded-lg border transition-all active:scale-95 ${
                   currentQuestion.isBookmarked
-                    ? 'text-secondary hover:bg-secondary/15'
-                    : 'text-on-surface-variant hover:text-secondary hover:bg-surface-subtle'
+                    ? 'border-secondary/40 bg-secondary/15 text-secondary'
+                    : 'border-border-subtle bg-surface-subtle text-on-surface-variant/60 hover:text-secondary'
                 }`}
-                title={currentQuestion.isBookmarked ? 'Đã ghim trong sổ tay' : 'Ghim vào sổ tay lỗi sai'}
+                title={currentQuestion.isBookmarked ? 'Đã ghim sổ tay' : 'Ghim vào sổ tay lỗi'}
               >
                 <span
-                  className="material-symbols-outlined text-[22px]"
+                  className="material-symbols-outlined text-[18px]"
                   style={currentQuestion.isBookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}
                 >
                   bookmark
                 </span>
               </button>
             )}
-            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
-              <span className="material-symbols-outlined text-[14px]">auto_stories</span>
-              <span>{currentQuestion.category}</span>
-            </div>
           </div>
         </div>
 
-        {/* Progress Track */}
-        <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden flex">
+        {/* Progress track */}
+        <div className="w-full bg-surface-subtle h-2 rounded-full overflow-hidden">
           <div
-            className="bg-primary-container h-full rounded-full transition-all duration-300"
+            className="bg-primary h-full rounded-full transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
 
-        {/* Numbered Question Quick Selector */}
-        <div className="flex flex-col gap-1.5 pt-1">
-          <div className="flex items-center justify-between text-label-sm font-semibold text-on-surface-variant">
-            <span>Chọn câu nhanh (1–10):</span>
-            <span className="text-primary font-bold">Đang học: Câu {currentQuestion.number}</span>
-          </div>
+        {/* Numbered 1-10 Pill Bar (Apple-Grade Touch Target) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pt-1">
+          {questions.map((q) => {
+            const isSelected = q.id === currentId;
+            let badgeStyle = 'border-border-subtle bg-surface-card text-on-surface-variant';
+            if (isSelected) {
+              badgeStyle = 'bg-primary text-on-primary border-primary shadow-sm ring-2 ring-primary/30 scale-105';
+            } else if (q.score === 2) {
+              badgeStyle = 'border-status-mastered/40 bg-status-mastered/10 text-status-mastered font-bold';
+            } else if (q.score === 1) {
+              badgeStyle = 'border-score-partial/40 bg-score-partial/10 text-score-partial font-bold';
+            } else if (q.score === 0 && q.readCount && q.readCount > 1) {
+              badgeStyle = 'border-score-forgot/40 bg-score-forgot/10 text-score-forgot font-bold';
+            }
 
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar py-0.5">
-            {questions.map((q) => {
-              const isSelected = q.id === currentId;
-              let badgeColor = 'border-border-subtle bg-surface-card text-on-surface';
-              if (isSelected) {
-                badgeColor = 'bg-primary text-on-primary border-primary shadow-sm ring-2 ring-primary/30 scale-105';
-              } else if (q.status === 'mastered') {
-                badgeColor = 'border-status-mastered/40 bg-status-mastered/10 text-status-mastered hover:bg-status-mastered/20';
-              } else if (q.status === 'learning') {
-                badgeColor = 'border-score-partial/40 bg-score-partial/10 text-score-partial hover:bg-score-partial/20';
-              } else if (q.status === 'review') {
-                badgeColor = 'border-score-forgot/40 bg-score-forgot/10 text-score-forgot hover:bg-score-forgot/20';
-              } else {
-                badgeColor = 'border-border-subtle bg-surface-subtle text-on-surface-variant hover:bg-surface-container';
-              }
+            return (
+              <button
+                key={q.id}
+                onClick={() => {
+                  setCurrentId(q.id);
+                  setSelectedScore(q.score);
+                }}
+                className={`min-w-[38px] h-9 px-2 rounded-xl border flex items-center justify-center font-bold text-label-md transition-all active:scale-95 shrink-0 ${badgeStyle}`}
+                title={`Câu ${q.number}: ${q.title}`}
+              >
+                <span>#{q.number}</span>
+              </button>
+            );
+          })}
+        </div>
 
-              return (
-                <button
-                  key={q.id}
-                  onClick={() => {
-                    setCurrentId(q.id);
-                    setSelectedScore(q.score);
-                  }}
-                  className={`min-w-[38px] h-10 px-2 rounded-xl border flex flex-col items-center justify-center font-bold text-label-md transition-all active:scale-95 shrink-0 ${badgeColor}`}
-                  title={`Câu ${q.number}: ${q.title}`}
-                >
-                  <span className="text-[14px] leading-none">#{q.number}</span>
-                </button>
-              );
-            })}
-          </div>
+        {/* Prev / Next question navigation controls */}
+        <div className="flex items-center justify-between pt-1 border-t border-border-subtle/70">
+          <button
+            onClick={handlePrevQuestion}
+            disabled={currentIndex === 0}
+            className={`flex items-center gap-1 text-label-md font-bold px-3 py-1.5 rounded-xl border transition-all ${
+              currentIndex === 0
+                ? 'opacity-30 cursor-not-allowed border-border-subtle text-on-surface-variant'
+                : 'text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 active:scale-95'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Câu trước</span>
+          </button>
 
-          <div className="flex items-center justify-between pt-0.5">
-            <button
-              onClick={handlePrevQuestion}
-              disabled={currentIndex === 0}
-              className={`flex items-center gap-1 text-label-sm font-label-sm px-2.5 py-1.5 rounded-lg border transition-colors ${
-                currentIndex === 0
-                  ? 'opacity-30 cursor-not-allowed border-border-subtle text-on-surface-variant'
-                  : 'text-primary border-primary/30 bg-primary/5 hover:bg-primary/10'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-              <span>Câu trước</span>
-            </button>
+          <span className="text-label-sm font-semibold text-on-surface-variant">
+            {currentIndex + 1} / 10
+          </span>
 
-            <button
-              onClick={handleNextQuestion}
-              disabled={currentIndex === questions.length - 1}
-              className={`flex items-center gap-1 text-label-sm font-label-sm px-2.5 py-1.5 rounded-lg border transition-colors ${
-                currentIndex === questions.length - 1
-                  ? 'opacity-30 cursor-not-allowed border-border-subtle text-on-surface-variant'
-                  : 'text-primary border-primary/30 bg-primary/5 hover:bg-primary/10'
-              }`}
-            >
-              <span>Câu sau</span>
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </button>
-          </div>
+          <button
+            onClick={handleNextQuestion}
+            disabled={currentIndex === questions.length - 1}
+            className={`flex items-center gap-1 text-label-md font-bold px-3 py-1.5 rounded-xl border transition-all ${
+              currentIndex === questions.length - 1
+                ? 'opacity-30 cursor-not-allowed border-border-subtle text-on-surface-variant'
+                : 'text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 active:scale-95'
+            }`}
+          >
+            <span>Câu sau</span>
+            <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </button>
         </div>
       </div>
 
       {/* 4 LEARNING MODES NAVIGATION TABS */}
-      <div className="grid grid-cols-4 gap-1 p-1 bg-surface-subtle rounded-2xl mb-space-md border border-border-subtle">
+      <div className="grid grid-cols-4 gap-1 p-1 bg-surface-subtle rounded-2xl mb-space-md border border-border-subtle shadow-xs">
         <button
           onClick={() => setSubMode('overview')}
-          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all ${
+          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all active:scale-95 ${
             subMode === 'overview'
-              ? 'bg-surface-card text-primary font-bold shadow-xs'
+              ? 'bg-surface-card text-primary font-bold shadow-xs border border-primary/20'
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">menu_book</span>
+          <span className="material-symbols-outlined text-[20px]">menu_book</span>
           <span>Tổng quan</span>
         </button>
 
         <button
           onClick={() => setSubMode('chunk')}
-          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all ${
+          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all active:scale-95 ${
             subMode === 'chunk'
-              ? 'bg-surface-card text-primary font-bold shadow-xs'
+              ? 'bg-surface-card text-primary font-bold shadow-xs border border-primary/20'
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">view_carousel</span>
+          <span className="material-symbols-outlined text-[20px]">view_carousel</span>
           <span>Từng đoạn</span>
         </button>
 
         <button
           onClick={() => setSubMode('cloze')}
-          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all ${
+          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all active:scale-95 ${
             subMode === 'cloze'
-              ? 'bg-surface-card text-secondary font-bold shadow-xs'
+              ? 'bg-surface-card text-secondary font-bold shadow-xs border border-secondary/20'
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">edit_note</span>
+          <span className="material-symbols-outlined text-[20px]">edit_note</span>
           <span>Điền từ</span>
         </button>
 
         <button
           onClick={() => setSubMode('checklist')}
-          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all ${
+          className={`py-2 px-1 rounded-xl text-center font-label-md text-label-md flex flex-col items-center gap-0.5 transition-all active:scale-95 ${
             subMode === 'checklist'
-              ? 'bg-surface-card text-status-mastered font-bold shadow-xs'
+              ? 'bg-surface-card text-status-mastered font-bold shadow-xs border border-status-mastered/20'
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">checklist_rtl</span>
+          <span className="material-symbols-outlined text-[20px]">checklist_rtl</span>
           <span>Checklist</span>
         </button>
       </div>
@@ -321,164 +326,168 @@ export const StudyView: React.FC<StudyViewProps> = ({
         </div>
       )}
 
-      {/* SUBMODE 0: TỔNG QUAN 3 TẦNG TRUYỀN THỐNG */}
+      {/* SUBMODE 0: TỔNG QUAN 3 TẦNG THIẾT KẾ MỚI SIÊU DỄ HỌC */}
       {subMode === 'overview' && (
-        <div className="flex flex-col bg-surface-card rounded-xl shadow-sm border border-border-subtle overflow-hidden mb-space-lg">
+        <div className="flex flex-col bg-surface-card rounded-2xl shadow-sm border border-border-subtle overflow-hidden mb-space-md">
           {/* TẦNG 1: CÂU HỎI */}
-          <div className="p-space-md flex flex-col gap-space-sm bg-surface-card border-b border-border-subtle">
+          <div className="p-space-md flex flex-col gap-3 bg-gradient-to-b from-primary/5 via-surface-card to-surface-card border-b border-border-subtle">
             <div className="flex items-center justify-between">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-vovinam-deep-ocean font-bold flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px]">quiz</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-bold text-label-sm uppercase tracking-wider">
+                <span className="material-symbols-outlined text-[15px]">quiz</span>
                 Tầng 1: Câu hỏi
               </span>
-              <span className="font-label-sm text-label-sm text-on-surface-variant bg-surface-subtle px-2 py-0.5 rounded-full">
+              <span className="text-label-sm text-on-surface-variant font-medium">
                 {currentQuestion.category}
               </span>
             </div>
 
-            <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">
-              Câu {currentQuestion.number}. {currentQuestion.title}
+            <h2 className="font-headline-lg-mobile text-[19px] sm:text-[21px] text-on-surface font-bold leading-snug">
+              {currentQuestion.title}
             </h2>
 
-            {/* Vocal recitation coach banner */}
-            <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-surface-container-low text-primary-container text-body-md font-body-md">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px] shrink-0">volume_up</span>
-                <span className="text-body-md font-body-md leading-snug">
-                  Đọc câu hỏi và trả lời thành tiếng trước khi xem đáp án
-                </span>
+            {/* Coach Speech Trigger Card */}
+            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-surface-subtle border border-border-subtle">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[18px]">record_voice_over</span>
+                </div>
+                <p className="text-body-sm font-medium text-on-surface-variant leading-tight">
+                  Tập đọc to câu hỏi và nhẩm câu trả lời trước khi lật đáp án!
+                </p>
               </div>
+
               <button
-                onClick={() => handleSpeak(currentQuestion.title)}
-                className="p-1 rounded-md hover:bg-primary-fixed text-primary transition-colors shrink-0"
-                title="Đọc to câu hỏi"
+                onClick={() => handleSpeak(`${currentQuestion.title}. ${currentQuestion.easyAnswer.coreMeaning}`)}
+                className={`p-2 rounded-xl transition-all active:scale-95 shrink-0 ${
+                  isSpeaking
+                    ? 'bg-score-forgot text-white shadow-xs'
+                    : 'bg-primary text-on-primary hover:brightness-105 shadow-xs'
+                }`}
+                title="Đọc to câu hỏi và đáp án"
               >
                 <span className="material-symbols-outlined text-[20px]">
-                  {isSpeaking ? 'stop_circle' : 'play_circle'}
+                  {isSpeaking ? 'stop_circle' : 'volume_up'}
                 </span>
               </button>
             </div>
           </div>
 
-          {/* TẦNG 2: GỢI NHỚ TỪ KHÓA */}
-          <div className="p-space-md bg-surface-subtle flex flex-col gap-space-xs border-b border-border-subtle">
+          {/* TẦNG 2: GỢI NHỚ TỪ KHÓA (GỢI Ý TỐC HÀNH) */}
+          <div className="p-space-md bg-secondary-fixed/30 border-b border-secondary/20 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <button
                 onClick={() => {
                   setIsHintOpen(!isHintOpen);
                   if (!isHintOpen) setHasUsedHint(true);
                 }}
-                className="flex items-center gap-1.5 text-secondary hover:text-secondary-container transition-colors"
+                className="flex items-center gap-1.5 text-secondary hover:brightness-90 transition-colors font-bold text-label-md uppercase tracking-wide"
               >
                 <span className="material-symbols-outlined text-[18px]">lightbulb</span>
-                <span className="font-label-md text-label-md font-bold uppercase tracking-wide">
-                  Tầng 2: Gợi nhớ từ khóa
-                </span>
-                <span className="material-symbols-outlined text-[16px]">
+                <span>Tầng 2: Từ khóa cốt lõi</span>
+                <span className="material-symbols-outlined text-[18px]">
                   {isHintOpen ? 'expand_less' : 'expand_more'}
                 </span>
               </button>
 
-              {/* Hint penalty badge */}
               {hasUsedHint && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
-                  <span className="material-symbols-outlined text-[13px] text-score-partial">warning</span>
-                  Đã dùng gợi ý (Tối đa 1đ)
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-bold text-[11px]">
+                  <span className="material-symbols-outlined text-[13px] text-score-partial">info</span>
+                  Đã xem gợi ý
                 </span>
               )}
             </div>
 
             {isHintOpen && (
-              <div className="p-3 rounded-lg bg-surface-card text-on-surface text-body-md font-body-md shadow-xs animate-in fade-in duration-150">
-                <span className="font-body-lg-bold text-secondary">Từ khóa gợi nhớ:</span>
-                <span className="font-body-md text-on-surface"> {currentQuestion.hintWords}</span>
+              <div className="p-3.5 rounded-xl bg-surface-card border border-secondary/30 text-on-surface shadow-xs animate-in fade-in duration-150">
+                <p className="font-body-md text-body-md text-on-surface leading-relaxed">
+                  <strong className="text-secondary font-bold">Gợi ý vàng: </strong>
+                  {currentQuestion.hintWords}
+                </p>
               </div>
             )}
           </div>
 
-          {/* TẦNG 3: ĐÁP ÁN CHI TIẾT */}
+          {/* TẦNG 3: ĐÁP ÁN CHUẨN GIÁO TRÌNH */}
           <div className="p-space-md bg-surface-card flex flex-col gap-space-md">
             <div className="flex items-center justify-between">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-score-remembered font-bold flex items-center gap-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-mastered/10 text-status-mastered font-bold text-label-sm uppercase tracking-wider">
                 <span className="material-symbols-outlined text-[16px]">verified</span>
-                Tầng 3: Đáp án chuẩn
+                Tầng 3: Đáp án chuẩn giáo trình
               </span>
+
               <button
                 onClick={() => setIsAnswerOpen(!isAnswerOpen)}
-                className="font-label-sm text-label-sm text-score-remembered bg-surface-container px-2 py-0.5 rounded-full hover:bg-surface-container-high transition-colors"
+                className="font-label-sm text-label-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-full hover:bg-primary/20 transition-colors"
               >
-                {isAnswerOpen ? 'Đã lật mở' : 'Chạm để xem đáp án'}
+                {isAnswerOpen ? 'Ẩn đáp án' : 'Xem đáp án'}
               </button>
             </div>
 
             {isAnswerOpen && (
-              <>
-                {/* Segmented View Mode Tabs */}
-                <div className="flex p-1 bg-surface-subtle rounded-lg gap-1" role="tablist">
+              <div className="flex flex-col gap-space-sm animate-in fade-in duration-150">
+                {/* Segmented Selector for Easy / Full View */}
+                <div className="flex p-1 bg-surface-subtle rounded-xl border border-border-subtle gap-1">
                   <button
                     type="button"
                     onClick={() => setAnswerTab('easy')}
-                    className={`flex-1 py-1.5 px-3 rounded text-center font-label-md text-label-md transition-all ${
+                    className={`flex-1 py-2 px-3 rounded-lg text-center font-bold text-label-md transition-all active:scale-95 ${
                       answerTab === 'easy'
-                        ? 'bg-surface-card text-primary font-bold shadow-sm'
+                        ? 'bg-surface-card text-primary shadow-xs border border-border-subtle'
                         : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
-                    Bản dễ thuộc
+                    Bản tóm lược dễ thuộc
                   </button>
                   <button
                     type="button"
                     onClick={() => setAnswerTab('full')}
-                    className={`flex-1 py-1.5 px-3 rounded text-center font-label-md text-label-md transition-all ${
+                    className={`flex-1 py-2 px-3 rounded-lg text-center font-bold text-label-md transition-all active:scale-95 ${
                       answerTab === 'full'
-                        ? 'bg-surface-card text-primary font-bold shadow-sm'
+                        ? 'bg-surface-card text-primary shadow-xs border border-border-subtle'
                         : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
-                    Đáp án đầy đủ (nguồn)
+                    Nguyên văn chi tiết
                   </button>
                 </div>
 
-                {/* Tab Content 1: Bản dễ thuộc */}
+                {/* TAB 1: BẢN TÓM LƯỢC DỄ THUỘC */}
                 {answerTab === 'easy' && (
-                  <div className="flex flex-col gap-space-sm animate-in fade-in duration-150">
-                    <div className="p-3.5 rounded-xl bg-secondary-fixed text-on-secondary-fixed flex flex-col gap-1 border border-secondary/20">
+                  <div className="flex flex-col gap-3">
+                    {/* Mandated core quote card with golden tactile frame */}
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-secondary-fixed via-surface-card to-secondary-fixed/40 border-2 border-secondary/30 flex flex-col gap-1.5 shadow-xs">
                       <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">bookmark</span>
-                        Câu tâm niệm bắt buộc
+                        <span className="material-symbols-outlined text-[15px]">bookmark</span>
+                        Ý cốt tử bắt buộc phải thuộc
                       </span>
-                      <p className="font-body-lg-bold text-headline-md text-on-secondary-fixed leading-snug">
+                      <p className={`font-bold text-on-surface ${textClass}`}>
                         {currentQuestion.easyAnswer.headlineQuote}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-lg bg-surface-subtle flex flex-col gap-1 border border-border-subtle">
-                      <span className="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold">
-                        Ý nghĩa cốt lõi
-                      </span>
-                      <p className="font-body-md text-body-md text-on-surface leading-relaxed">
-                        {currentQuestion.easyAnswer.coreMeaning}
-                      </p>
-                    </div>
-
-                    <div className="p-2.5 rounded-lg bg-surface-container flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center shrink-0">
-                        <span className="material-symbols-outlined text-on-primary text-[14px]">psychology</span>
+                    {/* Mnemonic / Memory tip banner */}
+                    <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-primary text-on-primary flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                        <span className="material-symbols-outlined text-[16px]">psychology</span>
                       </div>
-                      <div className="text-body-md font-body-md text-primary leading-tight">
-                        <span className="font-body-lg-bold">Mẹo nhớ: </span>
-                        <span>{currentQuestion.easyAnswer.mnemonic}</span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-label-sm uppercase text-primary">Mẹo nhớ nhanh:</span>
+                        <p className={`text-on-surface font-semibold ${textClass}`}>
+                          {currentQuestion.easyAnswer.mnemonic}
+                        </p>
                       </div>
                     </div>
 
+                    {/* Visual details for Question 1 */}
                     {currentQuestion.visualDetails?.fourColors && (
-                      <div className="grid grid-cols-2 gap-2 pt-1 text-on-surface-variant font-body-md text-body-md">
+                      <div className="grid grid-cols-2 gap-2 pt-1">
                         {currentQuestion.visualDetails.fourColors.map((c, idx) => (
-                          <div key={idx} className="p-2 rounded bg-surface-subtle flex items-center gap-2">
-                            <span className={`w-3.5 h-3.5 rounded-full ${c.colorClass} shrink-0`} />
-                            <span className="text-xs">
-                              <strong>{c.name}:</strong> {c.meaning}
-                            </span>
+                          <div key={idx} className="p-2.5 rounded-xl bg-surface-subtle border border-border-subtle flex items-start gap-2">
+                            <span className={`w-3.5 h-3.5 rounded-full ${c.colorClass} shrink-0 mt-0.5`} />
+                            <div className="text-xs text-on-surface leading-snug">
+                              <strong className="block font-bold">{c.name}:</strong>
+                              <span>{c.meaning}</span>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -486,40 +495,27 @@ export const StudyView: React.FC<StudyViewProps> = ({
                   </div>
                 )}
 
-                {/* Tab Content 2: Đáp án đầy đủ */}
+                {/* TAB 2: NGUYÊN VĂN CHI TIẾT */}
                 {answerTab === 'full' && (
-                  <div className="flex flex-col gap-space-sm animate-in fade-in duration-150">
-                    <div className="p-3.5 rounded-xl bg-surface-subtle text-on-surface flex flex-col gap-2.5 leading-relaxed text-body-md border border-border-subtle">
-                      <p className="font-body-lg-bold text-primary">{currentQuestion.fullAnswer.intro}</p>
+                  <div className="flex flex-col gap-3">
+                    <div className="p-4 rounded-xl bg-surface-subtle text-on-surface flex flex-col gap-3 border border-border-subtle">
+                      <p className="font-bold text-primary text-[16px]">{currentQuestion.fullAnswer.intro}</p>
 
                       {currentQuestion.fullAnswer.quote && (
-                        <blockquote className="pl-3 italic text-on-surface bg-surface-card p-2.5 rounded-lg border-l-2 border-primary">
+                        <blockquote className="pl-3.5 pr-2 py-2 italic font-semibold text-on-surface bg-surface-card p-2.5 rounded-xl border-l-4 border-primary shadow-xs">
                           {currentQuestion.fullAnswer.quote}
                         </blockquote>
                       )}
 
                       {currentQuestion.fullAnswer.paragraphs.map((p, idx) => (
-                        <p key={idx} className="font-body-md text-body-md">
+                        <div key={idx} className={`p-3 bg-surface-card rounded-xl border border-border-subtle/80 text-on-surface whitespace-pre-line leading-relaxed shadow-xs ${textClass}`}>
                           {p}
-                        </p>
-                      ))}
-
-                      {currentQuestion.fullAnswer.bulletPoints && (
-                        <div className="flex flex-col gap-1.5 pt-1">
-                          {currentQuestion.fullAnswer.bulletPoints.map((b, idx) => (
-                            <div key={idx} className="flex items-start gap-2 p-2 rounded bg-surface-card">
-                              <span className={`w-3 h-3 rounded-full mt-1.5 shrink-0 ${b.color || 'bg-primary'}`} />
-                              <div className="text-body-md">
-                                <strong className="text-on-surface font-semibold">{b.label}:</strong> {b.text}
-                              </div>
-                            </div>
-                          ))}
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -527,20 +523,20 @@ export const StudyView: React.FC<StudyViewProps> = ({
 
       {/* Hint Penalty Warning Toast */}
       {showHintWarning && (
-        <div className="mb-2 p-2.5 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center gap-2 text-xs font-semibold animate-in fade-in">
-          <span className="material-symbols-outlined text-[16px] text-secondary">info</span>
-          <span>Bạn đã mở gợi ý ở Tầng 2, câu này được giới hạn tối đa 1 điểm để đảm bảo tính khách quan!</span>
+        <div className="mb-2 p-3 rounded-xl bg-secondary-fixed text-on-secondary-fixed flex items-center gap-2 text-xs font-bold border border-secondary/30 animate-in fade-in">
+          <span className="material-symbols-outlined text-[18px] text-secondary">info</span>
+          <span>Bạn đã mở xem gợi ý ở Tầng 2, câu này được giới hạn tối đa 1 điểm!</span>
         </div>
       )}
 
-      {/* Thumb-Zone Self-Assessment Bar (3 Big Actions) */}
-      <div className="flex flex-col gap-space-xs mb-space-md">
+      {/* THUMB-ZONE SELF-ASSESSMENT (3 BIG TACTILE BUTTONS) */}
+      <div className="flex flex-col gap-2 mb-space-md bg-surface-card p-3 rounded-2xl border border-border-subtle shadow-xs">
         <div className="flex items-center justify-between px-1">
           <span className="font-label-sm text-label-sm text-on-surface-variant uppercase font-bold tracking-wider">
-            Tự đánh giá kết quả
+            Tự đánh giá phản xạ nhớ
           </span>
-          <span className="font-label-sm text-label-sm text-score-partial font-semibold">
-            {selectedScore !== null ? `Đã chọn: ${selectedScore}đ` : 'Chạm để chọn điểm'}
+          <span className="font-label-sm text-label-sm font-bold text-primary">
+            {selectedScore !== null ? `Đã chọn: ${selectedScore} điểm` : 'Chạm để chấm điểm'}
           </span>
         </div>
 
@@ -550,73 +546,68 @@ export const StudyView: React.FC<StudyViewProps> = ({
           <button
             type="button"
             onClick={() => handleSelectScore(0)}
-            className={`h-14 px-2 rounded-xl flex flex-col items-center justify-center transition-all active:scale-95 shadow-sm border ${
+            className={`h-14 px-2 rounded-xl flex flex-col items-center justify-center transition-all active:scale-95 shadow-xs border ${
               selectedScore === 0
-                ? 'bg-score-forgot text-white border-score-forgot scale-[1.02]'
-                : 'bg-surface-card text-score-forgot border-border-subtle hover:bg-surface-subtle'
+                ? 'bg-score-forgot text-white border-score-forgot scale-[1.02] shadow-sm'
+                : 'bg-surface-card text-score-forgot border-score-forgot/30 hover:bg-score-forgot/5'
             }`}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 font-bold">
               <span className="material-symbols-outlined text-[18px]">replay</span>
-              <span className="font-headline-md text-headline-md font-bold">0đ</span>
+              <span className="text-[17px]">0đ</span>
             </div>
-            <span className="font-label-sm text-label-sm font-bold">Quên</span>
+            <span className="text-[11px] font-bold">Quên</span>
           </button>
 
           {/* 1 Điểm - Nhớ một phần */}
           <button
             type="button"
             onClick={() => handleSelectScore(1)}
-            className={`h-14 px-2 rounded-xl flex flex-col items-center justify-center transition-all active:scale-95 shadow-sm border ${
+            className={`h-14 px-2 rounded-xl flex flex-col items-center justify-center transition-all active:scale-95 shadow-xs border ${
               selectedScore === 1
-                ? 'bg-score-partial text-white border-score-partial scale-[1.02]'
-                : 'bg-surface-card text-score-partial border-border-subtle hover:bg-surface-subtle'
+                ? 'bg-score-partial text-white border-score-partial scale-[1.02] shadow-sm'
+                : 'bg-surface-card text-score-partial border-score-partial/30 hover:bg-score-partial/5'
             }`}
           >
-            <div className="flex items-center gap-1">
-              <span
-                className="material-symbols-outlined text-[18px]"
-                style={selectedScore === 1 ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                check_circle
-              </span>
-              <span className="font-headline-md text-headline-md font-bold">1đ</span>
+            <div className="flex items-center gap-1 font-bold">
+              <span className="material-symbols-outlined text-[18px]">autorenew</span>
+              <span className="text-[17px]">1đ</span>
             </div>
-            <span className="font-label-sm text-label-sm font-bold">Nhớ 1 phần</span>
+            <span className="text-[11px] font-bold">Nhớ một phần</span>
           </button>
 
-          {/* 2 Điểm - Trả lời được */}
+          {/* 2 Điểm - Thuộc làu */}
           <button
             type="button"
             onClick={() => handleSelectScore(2)}
             title={hasUsedHint ? 'Đã xem gợi ý: tối đa 1 điểm' : 'Thuộc làu 2 điểm'}
-            className={`h-14 px-2 rounded-xl flex flex-col items-center justify-center transition-all active:scale-95 shadow-sm border ${
+            className={`h-14 px-2 rounded-xl flex flex-col items-center justify-center transition-all active:scale-95 shadow-xs border ${
               hasUsedHint
-                ? 'opacity-40 bg-surface-card border-border-subtle cursor-not-allowed text-score-remembered'
+                ? 'opacity-40 bg-surface-subtle border-border-subtle cursor-not-allowed text-status-mastered'
                 : selectedScore === 2
-                ? 'bg-score-remembered text-white border-score-remembered scale-[1.02]'
-                : 'bg-surface-card text-score-remembered border-border-subtle hover:bg-surface-subtle'
+                ? 'bg-status-mastered text-white border-status-mastered scale-[1.02] shadow-sm'
+                : 'bg-surface-card text-status-mastered border-status-mastered/30 hover:bg-status-mastered/5'
             }`}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 font-bold">
               <span className="material-symbols-outlined text-[18px]">verified</span>
-              <span className="font-headline-md text-headline-md font-bold">2đ</span>
+              <span className="text-[17px]">2đ</span>
             </div>
-            <span className={`font-label-sm text-label-sm font-bold ${hasUsedHint ? 'line-through' : ''}`}>
-              {hasUsedHint ? 'Vững (Khóa)' : 'Vững'}
+            <span className={`text-[11px] font-bold ${hasUsedHint ? 'line-through' : ''}`}>
+              {hasUsedHint ? 'Đã khóa' : 'Thuộc làu'}
             </span>
           </button>
         </div>
       </div>
 
-      {/* Full-Width Primary Action: Câu tiếp theo */}
+      {/* Primary Action Button: Câu tiếp theo */}
       <button
         type="button"
         onClick={handleNextQuestion}
-        className="w-full h-12 rounded-xl bg-primary-container text-on-primary font-body-lg-bold text-body-lg-bold flex items-center justify-center gap-2 shadow-sm transition-transform active:scale-95 hover:brightness-105"
+        className="w-full h-13 rounded-2xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold text-[16px] flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 hover:brightness-105"
       >
-        <span>Câu tiếp theo</span>
-        <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+        <span>Chuyển sang câu tiếp theo</span>
+        <span className="material-symbols-outlined text-[22px]">arrow_forward</span>
       </button>
     </div>
   );
