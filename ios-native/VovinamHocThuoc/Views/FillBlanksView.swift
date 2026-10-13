@@ -18,6 +18,10 @@ public struct FillBlanksView: View {
         ]
     }
 
+    private func wordsBank(for item: ClozeItem) -> [String] {
+        (item.answers + (item.distractors ?? [])).shuffled()
+    }
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Label("Điền từ còn thiếu vào chỗ trống", systemImage: "character.cursor.ibeam")
@@ -41,7 +45,6 @@ public struct FillBlanksView: View {
                         )
 
                     // Ngân hàng từ lựa chọn
-                    let allWords = (item.answers + (item.distractors ?? [])).shuffled()
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Ngân hàng từ gợi ý:")
                             .font(.caption)
@@ -49,9 +52,8 @@ public struct FillBlanksView: View {
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                ForEach(allWords, id: \.self) { word in
+                                ForEach(wordsBank(for: item), id: \.self) { word in
                                     Button(action: {
-                                        // Điền vào ô trống đầu tiên chưa có đáp án
                                         for i in 0..<item.answers.count {
                                             if userAnswers[i] == nil {
                                                 userAnswers[i] = word

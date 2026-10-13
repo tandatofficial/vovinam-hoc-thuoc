@@ -31,38 +31,42 @@ public struct KeyPointsChecklistView: View {
 
             VStack(spacing: 10) {
                 ForEach(Array(items.enumerated()), id: \.offset) { index, point in
-                    let isChecked = checkedItems[index] ?? false
-
-                    Button(action: {
-                        checkedItems[index] = !isChecked
-                    }) {
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
-                                .font(.system(size: 20))
-                                .foregroundColor(isChecked ? .green : .secondary)
-                                .padding(.top, 2)
-
-                            Text(point)
-                                .font(.subheadline)
-                                .fontWeight(isChecked ? .semibold : .regular)
-                                .foregroundColor(isChecked ? .primary : .secondary)
-                                .strikethrough(isChecked, color: .green.opacity(0.6))
-                                .multilineTextAlignment(.leading)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding()
-                        .background(isChecked ? Color.green.opacity(0.08) : Color(.systemBackground))
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(isChecked ? Color.green.opacity(0.3) : Color(.systemGray5), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
+                    itemRow(index: index, point: point)
                 }
             }
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
+    }
+
+    private func itemRow(index: Int, point: String) -> some View {
+        let isChecked = checkedItems[index] ?? false
+
+        return Button(action: {
+            checkedItems[index] = !isChecked
+        }) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 20))
+                    .foregroundColor(isChecked ? .green : .secondary)
+                    .padding(.top, 2)
+
+                Text(point)
+                    .font(.subheadline)
+                    .fontWeight(isChecked ? .semibold : .regular)
+                    .foregroundColor(isChecked ? .primary : .secondary)
+                    .strikethrough(isChecked, color: .green.opacity(0.6))
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding()
+            .background(isChecked ? Color.green.opacity(0.08) : Color(.systemBackground))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isChecked ? Color.green.opacity(0.3) : Color(.systemGray5), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }

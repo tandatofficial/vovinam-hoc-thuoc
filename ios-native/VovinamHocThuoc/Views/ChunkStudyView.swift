@@ -39,80 +39,7 @@ public struct ChunkStudyView: View {
 
             // Khung hiển thị phân đoạn đang học
             if !chunks.isEmpty && activeChunkIndex < chunks.count {
-                let currentText = chunks[activeChunkIndex]
-
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        Label("Phân đoạn số \(activeChunkIndex + 1)", systemImage: "text.alignleft")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.secondary)
-
-                        Spacer()
-
-                        // Nút đọc đoạn này
-                        Button(action: {
-                            speechService.toggle(currentText)
-                        }) {
-                            Image(systemName: speechService.isSpeaking ? "stop.circle.fill" : "speaker.wave.2.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(speechService.isSpeaking ? .red : .blue)
-                        }
-                    }
-
-                    if isMasked {
-                        Text("•••• •••••• •••••• •••• (Đã ẩn để tự nhẩm thuộc)")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .italic()
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    } else {
-                        Text(currentText)
-                            .font(.system(size: 17, weight: .medium, design: .rounded))
-                            .foregroundColor(.primary)
-                            .lineSpacing(6)
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-
-                    HStack(spacing: 12) {
-                        // Nút ẩn / hiện
-                        Button(action: {
-                            isMasked.toggle()
-                        }) {
-                            Label(isMasked ? "Hiện chữ" : "Ẩn để nhẩm", systemImage: isMasked ? "eye.fill" : "eye.slash.fill")
-                                .font(.footnote)
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(10)
-                        }
-
-                        Spacer()
-
-                        // Đánh dấu đã thuộc đoạn này
-                        Button(action: {
-                            learnedChunks[activeChunkIndex] = !(learnedChunks[activeChunkIndex] ?? false)
-                        }) {
-                            let isDone = learnedChunks[activeChunkIndex] ?? false
-                            Label(isDone ? "Đã thuộc" : "Chưa thuộc", systemImage: isDone ? "checkmark.circle.fill" : "circle")
-                                .font(.footnote)
-                                .fontWeight(.bold)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(isDone ? Color.green.opacity(0.15) : Color(.systemGray6))
-                                .foregroundColor(isDone ? .green : .primary)
-                                .cornerRadius(10)
-                        }
-                    }
-                }
-                .padding()
-                .background(Color(.systemBackground))
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
-                .padding(.horizontal)
+                chunkCard(currentText: chunks[activeChunkIndex])
             }
 
             // Thanh điều hướng đoạn trước / đoạn sau
@@ -160,5 +87,77 @@ public struct ChunkStudyView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
+    }
+
+    private func chunkCard(currentText: String) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Label("Phân đoạn số \(activeChunkIndex + 1)", systemImage: "text.alignleft")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button(action: {
+                    speechService.toggle(currentText)
+                }) {
+                    Image(systemName: speechService.isSpeaking ? "stop.circle.fill" : "speaker.wave.2.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(speechService.isSpeaking ? .red : .blue)
+                }
+            }
+
+            if isMasked {
+                Text("•••• •••••• •••••• •••• (Đã ẩn để tự nhẩm thuộc)")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .italic()
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                Text(currentText)
+                    .font(.system(size: 17, weight: .medium, design: .rounded))
+                    .foregroundColor(.primary)
+                    .lineSpacing(6)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            HStack(spacing: 12) {
+                Button(action: {
+                    isMasked.toggle()
+                }) {
+                    Label(isMasked ? "Hiện chữ" : "Ẩn để nhẩm", systemImage: isMasked ? "eye.fill" : "eye.slash.fill")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                }
+
+                Spacer()
+
+                Button(action: {
+                    learnedChunks[activeChunkIndex] = !(learnedChunks[activeChunkIndex] ?? false)
+                }) {
+                    let isDone = learnedChunks[activeChunkIndex] ?? false
+                    Label(isDone ? "Đã thuộc" : "Chưa thuộc", systemImage: isDone ? "checkmark.circle.fill" : "circle")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(isDone ? Color.green.opacity(0.15) : Color(.systemGray6))
+                        .foregroundColor(isDone ? .green : .primary)
+                        .cornerRadius(10)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+        .padding(.horizontal)
     }
 }

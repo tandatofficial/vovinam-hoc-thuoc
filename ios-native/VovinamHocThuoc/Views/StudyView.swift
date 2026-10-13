@@ -25,21 +25,19 @@ public struct StudyView: View {
                         // MARK: - 2. Thanh chuyển Sub-Modes (Tổng quan / Từng đoạn / Điền từ / Checklist)
                         subModePicker
 
-                        let q = viewModel.currentQuestion
-
                         if viewModel.selectedSubMode == .chunk {
-                            ChunkStudyView(question: q)
+                            ChunkStudyView(question: viewModel.currentQuestion)
                         } else if viewModel.selectedSubMode == .cloze {
-                            FillBlanksView(question: q)
+                            FillBlanksView(question: viewModel.currentQuestion)
                         } else if viewModel.selectedSubMode == .checklist {
-                            KeyPointsChecklistView(question: q)
+                            KeyPointsChecklistView(question: viewModel.currentQuestion)
                         } else {
                             // MARK: - 3. Chế độ Tổng quan 3 Tầng Ghi Nhớ
-                            overviewStudyContent(question: q)
+                            overviewStudyContent(question: viewModel.currentQuestion)
                         }
 
                         // MARK: - 4. Thumb-Zone Self Assessment (3 Nút to bản)
-                        selfAssessmentBar(question: q)
+                        selfAssessmentBar(question: viewModel.currentQuestion)
                     }
                     .padding(.bottom, 24)
                 }
