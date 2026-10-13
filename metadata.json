@@ -1,0 +1,7 @@
+{
+  "name": "Võ 3 — 10 Ngày",
+  "description": "Ứng dụng luyện thi lý thuyết Vovinam cấp tốc 10 ngày cho võ sinh Lam đai đệ tam cấp với phương pháp 3 tầng ghi nhớ, ngân hàng 10 câu hỏi và thi thử vấn đáp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

@@ -1,0 +1,15 @@
+{
+  "appId": "com.vovinam.hocthuoc",
+  "appName": "Học Thuộc Vovinam",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile",
+    "scheme": "App"
+  },
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "ionic"
+  }
+}

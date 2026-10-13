@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #00288e;
+  --color-primary-container: #1e40af;
+  --color-primary-fixed: #dde1ff;
+  --color-primary-fixed-dim: #b8c4ff;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #a8b8ff;
+  --color-on-primary-fixed: #001453;
+  --color-on-primary-fixed-variant: #173bab;
+
+  --color-secondary: #904d00;
+  --color-secondary-container: #fe932c;
+  --color-secondary-fixed: #ffdcc3;
+  --color-secondary-fixed-dim: #ffb77d;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-fixed: #2f1500;
+  --color-on-secondary-container: #663500;
+
+  --color-tertiary: #700006;
+  --color-tertiary-fixed: #ffdad6;
+  --color-tertiary-fixed-dim: #ffb4ab;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-fixed: #410002;
+  --color-on-tertiary-fixed-variant: #93000b;
+
+  --color-surface-bg: #F8FAFC;
+  --color-surface-card: #FFFFFF;
+  --color-surface-subtle: #F1F5F9;
+  --color-surface-container: #eaedff;
+  --color-surface-container-low: #f2f3ff;
+  --color-surface-container-high: #e2e7ff;
+  --color-surface-container-highest: #dae2fd;
+  --color-surface-dim: #d2d9f4;
+
+  --color-outline: #757684;
+  --color-outline-variant: #c4c5d5;
+  --color-border-subtle: #E2E8F0;
+
+  --color-score-remembered: #16A34A;
+  --color-score-partial: #D97706;
+  --color-score-forgot: #DC2626;
+
+  --color-status-mastered: #16A34A;
+  --color-status-reviewing: #D97706;
+  --color-status-unlearned: #64748B;
+
+  --color-vovinam-deep-ocean: #0D5C75;
+
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-on-surface: #131b2e;
+  --color-on-surface-variant: #444653;
+  --color-inverse-surface: #283044;
+
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html, body {
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    background-color: #F8FAFC;
+    color: #131b2e;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom Spacing & Typography Helpers Matching Mockup */
+.px-space-md { padding-left: 1rem; padding-right: 1rem; }
+.py-space-md { padding-top: 1rem; padding-bottom: 1rem; }
+.p-space-md { padding: 1rem; }
+.p-space-sm { padding: 0.5rem; }
+.px-space-sm { padding-left: 0.5rem; padding-right: 0.5rem; }
+.py-space-sm { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.gap-space-sm { gap: 0.5rem; }
+.gap-space-md { gap: 1rem; }
+.gap-space-xs { gap: 0.25rem; }
+.mb-space-md { margin-bottom: 1rem; }
+.mb-space-lg { margin-bottom: 1.5rem; }
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px); }
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+
+.font-headline-md {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 700;
+}
+.font-headline-lg-mobile {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 700;
+}
+.font-body-lg-bold {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.font-body-md {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.font-label-md {
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.font-label-sm {
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+.font-display-mobile {
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+  font-weight: 800;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
