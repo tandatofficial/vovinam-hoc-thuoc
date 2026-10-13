@@ -19,7 +19,7 @@ export default function App() {
   // Load questions from localStorage or fallback
   const [questions, setQuestions] = useState<QuestionData[]>(() => {
     try {
-      const saved = localStorage.getItem('vovinam_questions_v2');
+      const saved = localStorage.getItem('vovinam_questions_v3');
       if (saved) {
         return JSON.parse(saved);
       }
@@ -76,7 +76,7 @@ export default function App() {
   // Helper to persist questions
   const saveQuestions = (updated: QuestionData[]) => {
     try {
-      localStorage.setItem('vovinam_questions_v2', JSON.stringify(updated));
+      localStorage.setItem('vovinam_questions_v3', JSON.stringify(updated));
     } catch {
       // ignore
     }
@@ -179,7 +179,7 @@ export default function App() {
     setCurrentDay(3);
     setStreakDays(3);
     try {
-      localStorage.removeItem('vovinam_questions_v2');
+      localStorage.removeItem('vovinam_questions_v3');
       localStorage.removeItem('vovinam_current_day');
     } catch {
       // ignore

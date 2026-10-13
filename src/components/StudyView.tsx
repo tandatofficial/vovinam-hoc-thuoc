@@ -180,54 +180,72 @@ export const StudyView: React.FC<StudyViewProps> = ({
           />
         </div>
 
-        {/* Question Selector Slider */}
-        <div className="flex items-center justify-between pt-1">
-          <button
-            onClick={handlePrevQuestion}
-            disabled={currentIndex === 0}
-            className={`flex items-center gap-1 text-label-sm font-label-sm px-2 py-1 rounded hover:bg-surface-subtle transition-colors ${
-              currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'text-primary'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-            <span>Câu trước</span>
-          </button>
-
-          {/* Quick jump dot indicators */}
-          <div className="flex items-center gap-1">
-            {questions.map((q) => (
-              <button
-                key={q.id}
-                onClick={() => {
-                  setCurrentId(q.id);
-                  setSelectedScore(q.score);
-                }}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
-                  q.id === currentId
-                    ? 'bg-primary scale-125 ring-2 ring-primary/30'
-                    : q.status === 'mastered'
-                    ? 'bg-score-remembered'
-                    : q.status === 'learning'
-                    ? 'bg-score-partial'
-                    : q.status === 'review'
-                    ? 'bg-score-forgot'
-                    : 'bg-outline-variant/40'
-                }`}
-                title={`Câu ${q.id}`}
-              />
-            ))}
+        {/* Numbered Question Quick Selector */}
+        <div className="flex flex-col gap-1.5 pt-1">
+          <div className="flex items-center justify-between text-label-sm font-semibold text-on-surface-variant">
+            <span>Chọn câu nhanh (1–10):</span>
+            <span className="text-primary font-bold">Đang học: Câu {currentQuestion.number}</span>
           </div>
 
-          <button
-            onClick={handleNextQuestion}
-            disabled={currentIndex === questions.length - 1}
-            className={`flex items-center gap-1 text-label-sm font-label-sm px-2 py-1 rounded hover:bg-surface-subtle transition-colors ${
-              currentIndex === questions.length - 1 ? 'opacity-30 cursor-not-allowed' : 'text-primary'
-            }`}
-          >
-            <span>Câu sau</span>
-            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-          </button>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar py-0.5">
+            {questions.map((q) => {
+              const isSelected = q.id === currentId;
+              let badgeColor = 'border-border-subtle bg-surface-card text-on-surface';
+              if (isSelected) {
+                badgeColor = 'bg-primary text-on-primary border-primary shadow-sm ring-2 ring-primary/30 scale-105';
+              } else if (q.status === 'mastered') {
+                badgeColor = 'border-status-mastered/40 bg-status-mastered/10 text-status-mastered hover:bg-status-mastered/20';
+              } else if (q.status === 'learning') {
+                badgeColor = 'border-score-partial/40 bg-score-partial/10 text-score-partial hover:bg-score-partial/20';
+              } else if (q.status === 'review') {
+                badgeColor = 'border-score-forgot/40 bg-score-forgot/10 text-score-forgot hover:bg-score-forgot/20';
+              } else {
+                badgeColor = 'border-border-subtle bg-surface-subtle text-on-surface-variant hover:bg-surface-container';
+              }
+
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => {
+                    setCurrentId(q.id);
+                    setSelectedScore(q.score);
+                  }}
+                  className={`min-w-[38px] h-10 px-2 rounded-xl border flex flex-col items-center justify-center font-bold text-label-md transition-all active:scale-95 shrink-0 ${badgeColor}`}
+                  title={`Câu ${q.number}: ${q.title}`}
+                >
+                  <span className="text-[14px] leading-none">#{q.number}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center justify-between pt-0.5">
+            <button
+              onClick={handlePrevQuestion}
+              disabled={currentIndex === 0}
+              className={`flex items-center gap-1 text-label-sm font-label-sm px-2.5 py-1.5 rounded-lg border transition-colors ${
+                currentIndex === 0
+                  ? 'opacity-30 cursor-not-allowed border-border-subtle text-on-surface-variant'
+                  : 'text-primary border-primary/30 bg-primary/5 hover:bg-primary/10'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+              <span>Câu trước</span>
+            </button>
+
+            <button
+              onClick={handleNextQuestion}
+              disabled={currentIndex === questions.length - 1}
+              className={`flex items-center gap-1 text-label-sm font-label-sm px-2.5 py-1.5 rounded-lg border transition-colors ${
+                currentIndex === questions.length - 1
+                  ? 'opacity-30 cursor-not-allowed border-border-subtle text-on-surface-variant'
+                  : 'text-primary border-primary/30 bg-primary/5 hover:bg-primary/10'
+              }`}
+            >
+              <span>Câu sau</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
+          </div>
         </div>
       </div>
 
