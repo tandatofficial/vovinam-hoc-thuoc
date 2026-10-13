@@ -120,6 +120,10 @@ public struct Question: Identifiable, Codable, Equatable {
     public var isMarkedFavorite: Bool {
         return isBookmarked ?? false
     }
+
+    public var clozeItems: [ClozeItem]? {
+        return clozeData
+    }
 }
 
 public struct DayPlanItem: Identifiable, Codable, Equatable {

@@ -11,7 +11,7 @@ public struct FillBlanksView: View {
     }
 
     private var clozeItems: [ClozeItem] {
-        if let items = question.clozeItems, !items.isEmpty {
+        if let items = question.clozeData, !items.isEmpty {
             return items
         }
         return [
