@@ -25,7 +25,6 @@ public enum AnswerTabType: String, CaseIterable {
     case full = "Nguyên văn chi tiết"
 }
 
-@MainActor
 public final class StudyViewModel: ObservableObject {
     public static let shared = StudyViewModel()
 

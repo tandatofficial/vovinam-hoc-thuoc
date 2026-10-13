@@ -33,7 +33,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            IPHONEOS_DEPLOYMENT_TARGET=15.0 2>&1 | tee xcodebuild.log || (echo "=== COMPILATION ERRORS ===" && grep -C 3 -E "error:|fatal error:" xcodebuild.log && exit 1)
+            IPHONEOS_DEPLOYMENT_TARGET=15.0 2>&1 | tee xcodebuild.log || (echo "=== COMPILATION LOG ===" && tail -n 100 xcodebuild.log && exit 1)
 
       - name: Package Native IPA for TrollStore
         run: |
@@ -48,6 +48,13 @@ jobs:
           # Create IPA archive
           zip -r9 VovinamHocThuoc.ipa Payload
           ls -lh VovinamHocThuoc.ipa
+
+      - name: Upload Build Log on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: xcodebuild.log
 
       - name: Upload Native Swift IPA Artifact
         uses: actions/upload-artifact@v4
