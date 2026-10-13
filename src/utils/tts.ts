@@ -117,8 +117,10 @@ class VietnameseSpeechService {
 
     if (!clean) return [];
 
-    // Tách theo dấu chấm, phẩy, hai chấm, chấm phẩy
-    const rawSegments = clean.split(/(?<=[.!?;:\n])\s+/);
+    // Tách theo dấu chấm, phẩy, hai chấm, chấm phẩy (tương thích 100% với iOS 15, không dùng regex lookbehind)
+    const rawSegments = clean
+      .replace(/([.!?;:\n]+)\s*/g, '$1|__SPLIT__|')
+      .split('|__SPLIT__|');
     const chunks: string[] = [];
 
     for (const seg of rawSegments) {
