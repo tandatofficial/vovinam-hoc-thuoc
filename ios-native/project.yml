@@ -3,6 +3,11 @@ options:
   bundleIdPrefix: com.vovinam
   deploymentTarget:
     iOS: "15.0"
+schemes:
+  VovinamHocThuoc:
+    build:
+      targets:
+        VovinamHocThuoc: all
 targets:
   VovinamHocThuoc:
     type: application

@@ -33,7 +33,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            IPHONEOS_DEPLOYMENT_TARGET=15.0 2>&1 | tee xcodebuild.log || (echo "=== COMPILATION LOG ===" && tail -n 100 xcodebuild.log && exit 1)
+            IPHONEOS_DEPLOYMENT_TARGET=15.0 2>&1 | tee xcodebuild.log || (echo "=== FULL XCODEBUILD LOG ===" && cat xcodebuild.log && exit 1)
 
       - name: Package Native IPA for TrollStore
         run: |
