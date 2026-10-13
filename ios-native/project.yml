@@ -12,10 +12,6 @@ targets:
       - path: VovinamHocThuoc
         excludes:
           - "Info.plist"
-    scheme:
-      configVariants:
-        - Release
-        - Debug
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.vovinam.hocthuoc
       PRODUCT_NAME: "VovinamHocThuoc"
