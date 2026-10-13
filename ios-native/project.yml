@@ -10,6 +10,8 @@ targets:
     deploymentTarget: "15.0"
     sources:
       - path: VovinamHocThuoc
+        excludes:
+          - "Info.plist"
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.vovinam.hocthuoc
       PRODUCT_NAME: "VovinamHocThuoc"
@@ -21,3 +23,4 @@ targets:
       CODE_SIGNING_ALLOWED: NO
       CODE_SIGNING_REQUIRED: NO
       CODE_SIGN_IDENTITY: ""
+      ENABLE_BITCODE: NO

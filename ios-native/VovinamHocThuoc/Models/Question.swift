@@ -4,26 +4,51 @@ public struct ClozeItem: Codable, Identifiable, Equatable {
     public var id: String { prompt }
     public let prompt: String
     public let answers: [String]
-    public let distractors: [String]
+    public var distractors: [String]?
+
+    public init(prompt: String, answers: [String], distractors: [String]? = nil) {
+        self.prompt = prompt
+        self.answers = answers
+        self.distractors = distractors
+    }
 }
 
 public struct BulletPoint: Codable, Equatable {
     public let label: String
     public let text: String
-    public let color: String?
+    public var color: String?
+
+    public init(label: String, text: String, color: String? = nil) {
+        self.label = label
+        self.text = text
+        self.color = color
+    }
 }
 
 public struct EasyAnswer: Codable, Equatable {
     public let headlineQuote: String
     public let coreMeaning: String
     public let mnemonic: String
+
+    public init(headlineQuote: String, coreMeaning: String, mnemonic: String) {
+        self.headlineQuote = headlineQuote
+        self.coreMeaning = coreMeaning
+        self.mnemonic = mnemonic
+    }
 }
 
 public struct FullAnswer: Codable, Equatable {
     public let intro: String
-    public let quote: String?
+    public var quote: String?
     public let paragraphs: [String]
-    public let bulletPoints: [BulletPoint]?
+    public var bulletPoints: [BulletPoint]?
+
+    public init(intro: String, quote: String? = nil, paragraphs: [String], bulletPoints: [BulletPoint]? = nil) {
+        self.intro = intro
+        self.quote = quote
+        self.paragraphs = paragraphs
+        self.bulletPoints = bulletPoints
+    }
 }
 
 public struct Question: Identifiable, Codable, Equatable {
@@ -47,6 +72,50 @@ public struct Question: Identifiable, Codable, Equatable {
     public var userNote: String?
     public var isBookmarked: Bool?
     public var lastReviewedTimestamp: TimeInterval?
+
+    public init(
+        id: Int,
+        number: Int,
+        title: String,
+        category: String,
+        status: String = "unlearned",
+        score: Int = 0,
+        dayAssigned: Int = 1,
+        keywords: String = "",
+        hintWords: String = "",
+        easyAnswer: EasyAnswer,
+        fullAnswer: FullAnswer,
+        accuracyPercent: Int? = nil,
+        readCount: Int? = nil,
+        chunks: [String]? = nil,
+        clozeData: [ClozeItem]? = nil,
+        keyPoints: [String]? = nil,
+        commonMistakes: [String]? = nil,
+        userNote: String? = nil,
+        isBookmarked: Bool? = nil,
+        lastReviewedTimestamp: TimeInterval? = nil
+    ) {
+        self.id = id
+        self.number = number
+        self.title = title
+        self.category = category
+        self.status = status
+        self.score = score
+        self.dayAssigned = dayAssigned
+        self.keywords = keywords
+        self.hintWords = hintWords
+        self.easyAnswer = easyAnswer
+        self.fullAnswer = fullAnswer
+        self.accuracyPercent = accuracyPercent
+        self.readCount = readCount
+        self.chunks = chunks
+        self.clozeData = clozeData
+        self.keyPoints = keyPoints
+        self.commonMistakes = commonMistakes
+        self.userNote = userNote
+        self.isBookmarked = isBookmarked
+        self.lastReviewedTimestamp = lastReviewedTimestamp
+    }
 
     public var isMarkedFavorite: Bool {
         return isBookmarked ?? false

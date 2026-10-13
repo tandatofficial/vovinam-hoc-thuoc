@@ -41,7 +41,7 @@ public struct FillBlanksView: View {
                         )
 
                     // Ngân hàng từ lựa chọn
-                    let allWords = (item.answers + item.distractors).shuffled()
+                    let allWords = (item.answers + (item.distractors ?? [])).shuffled()
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Ngân hàng từ gợi ý:")
                             .font(.caption)
