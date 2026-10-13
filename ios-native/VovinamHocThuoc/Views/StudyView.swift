@@ -169,8 +169,9 @@ public struct StudyView: View {
 
                 // Thanh Giọng Đọc Native Tiếng Việt
                 SpeechPlayerBar(
+                    questionNumber: question.number,
                     textToSpeak: "\(question.title). Ý cốt tử: \(question.easyAnswer.headlineQuote). \(question.easyAnswer.coreMeaning)",
-                    labelText: "Giọng đọc Tiếng Việt (Apple vi-VN)"
+                    labelText: "Giọng đọc Tiếng Việt (Người thật 100%)"
                 )
             }
             .padding()

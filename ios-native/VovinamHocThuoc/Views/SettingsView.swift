@@ -74,8 +74,18 @@ public struct SettingsView: View {
                     }
                 }
 
-                // MARK: - Section 3: Thông tin ứng dụng
-                Section(header: Text("Thông Tin")) {
+                // MARK: - Section 3: Cấu hình Giọng đọc & Thông tin
+                Section(
+                    header: Text("Giọng Đọc Tiếng Việt"),
+                    footer: Text("Trọn bộ 10 câu hỏi mặc định phát bằng tệp âm thanh người thật 100% cực kỳ truyền cảm, rõ ràng và không cần mạng. Đối với các câu hỏi do bạn tự viết thêm qua JSON, ứng dụng sẽ tự động dùng bộ đọc tiếng Việt của Apple (vào Cài đặt iPhone > Trợ năng > Nội dung được đọc > Giọng nói > Tiếng Việt > Tải giọng Linh để đạt chất lượng tốt nhất).")
+                ) {
+                    HStack {
+                        Text("Chất lượng âm thanh")
+                        Spacer()
+                        Text("Người thật 100% (Offline)")
+                            .foregroundColor(.secondary)
+                    }
+
                     HStack {
                         Text("Nền tảng")
                         Spacer()
@@ -84,16 +94,9 @@ public struct SettingsView: View {
                     }
 
                     HStack {
-                        Text("Âm thanh")
-                        Spacer()
-                        Text("AVSpeechSynthesizer (vi-VN)")
-                            .foregroundColor(.secondary)
-                    }
-
-                    HStack {
                         Text("Cài đặt")
                         Spacer()
-                        Text("TrollStore / Không hết hạn")
+                        Text("TrollStore / Vĩnh viễn")
                             .foregroundColor(.secondary)
                     }
                 }

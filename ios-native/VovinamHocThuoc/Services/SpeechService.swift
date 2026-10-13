@@ -1,21 +1,24 @@
 import Foundation
 import AVFoundation
 
-/// Protocol cho dịch vụ phát âm thanh Native Tiếng Việt
+/// Protocol cho dịch vụ phát âm thanh Native Tiếng Việt (Hỗ trợ cả Audio thực tế & TTS)
 public protocol SpeechServiceProtocol: AnyObject {
     var isSpeaking: Bool { get }
     var speechRate: Float { get }
     func speak(_ text: String)
+    func speakQuestion(number: Int, fallbackText: String)
     func stop()
     func toggle(_ text: String)
+    func toggleQuestion(number: Int, fallbackText: String)
     func setSpeedSlow()
     func setSpeedNormal()
 }
 
-public final class SpeechService: NSObject, ObservableObject, SpeechServiceProtocol, AVSpeechSynthesizerDelegate {
+public final class SpeechService: NSObject, ObservableObject, SpeechServiceProtocol, AVSpeechSynthesizerDelegate, AVAudioPlayerDelegate {
     public static let shared = SpeechService()
 
     private let synthesizer = AVSpeechSynthesizer()
+    private var audioPlayer: AVAudioPlayer?
     private var vietnameseVoice: AVSpeechSynthesisVoice?
 
     @Published public var isSpeaking: Bool = false
@@ -43,7 +46,6 @@ public final class SpeechService: NSObject, ObservableObject, SpeechServiceProto
     }
 
     private func setupVoice() {
-        // Ưu tiên chọn giọng đọc Tiếng Việt (vi-VN / Apple Linh)
         let voices = AVSpeechSynthesisVoice.speechVoices()
         vietnameseVoice = voices.first(where: { $0.language == "vi-VN" || $0.language == "vi_VN" })
             ?? AVSpeechSynthesisVoice(language: "vi-VN")
@@ -72,6 +74,45 @@ public final class SpeechService: NSObject, ObservableObject, SpeechServiceProto
 
     // MARK: - Playback Control
 
+    /// Phát file âm thanh người Việt thật 100% nếu có sẵn, fallback sang TTS nếu không tìm thấy
+    public func speakQuestion(number: Int, fallbackText: String) {
+        stop()
+
+        // Tìm file q{number}.mp3 trong bundle (Resources hoặc Resources/Audio)
+        var audioURL = Bundle.main.url(forResource: "q\(number)", withExtension: "mp3")
+        if audioURL == nil {
+            audioURL = Bundle.main.url(forResource: "q\(number)", withExtension: "mp3", subdirectory: "Audio")
+        }
+
+        if let url = audioURL {
+            do {
+                try AVAudioSession.sharedInstance().setActive(true)
+                let player = try AVAudioPlayer(contentsOf: url)
+                player.delegate = self
+                player.enableRate = true
+                player.rate = (speechRate < 0.48) ? 0.85 : 1.0
+                player.prepareToPlay()
+                player.play()
+                self.audioPlayer = player
+                self.isSpeaking = true
+                return
+            } catch {
+                print("[SpeechService] Không thể phát file âm thanh \(url.lastPathComponent): \(error)")
+            }
+        }
+
+        // Fallback sang synthesizer nếu không có file âm thanh
+        speak(fallbackText)
+    }
+
+    public func toggleQuestion(number: Int, fallbackText: String) {
+        if isSpeaking {
+            stop()
+        } else {
+            speakQuestion(number: number, fallbackText: fallbackText)
+        }
+    }
+
     public func speak(_ text: String) {
         stop()
 
@@ -95,6 +136,11 @@ public final class SpeechService: NSObject, ObservableObject, SpeechServiceProto
     }
 
     public func stop() {
+        if let player = audioPlayer, player.isPlaying {
+            player.stop()
+        }
+        audioPlayer = nil
+
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
         }
@@ -110,11 +156,27 @@ public final class SpeechService: NSObject, ObservableObject, SpeechServiceProto
     }
 
     public func setSpeedSlow() {
-        speechRate = 0.44 // Đọc thong thả để dễ ngấm và nhẩm thuộc
+        speechRate = 0.44
+        if let player = audioPlayer {
+            player.rate = 0.85
+        }
     }
 
     public func setSpeedNormal() {
-        speechRate = 0.50 // Tốc độ đàm thoại tự nhiên
+        speechRate = 0.50
+        if let player = audioPlayer {
+            player.rate = 1.0
+        }
+    }
+
+    // MARK: - AVAudioPlayerDelegate
+
+    public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            self?.isSpeaking = false
+            self?.audioPlayer = nil
+            try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
+        }
     }
 
     // MARK: - AVSpeechSynthesizerDelegate

@@ -1,13 +1,19 @@
 import SwiftUI
 
-/// Thanh phát âm thanh Native Tiếng Việt tái sử dụng
+/// Thanh phát âm thanh Native Tiếng Việt (Người thật 100% qua file Audio, fallback sang Apple TTS)
 public struct SpeechPlayerBar: View {
+    public let questionNumber: Int?
     public let textToSpeak: String
-    public var labelText: String = "Giọng đọc Tiếng Việt (Apple vi-VN)"
+    public var labelText: String
     
     @ObservedObject private var speechService = SpeechService.shared
 
-    public init(textToSpeak: String, labelText: String = "Giọng đọc Tiếng Việt (Apple vi-VN)") {
+    public init(
+        questionNumber: Int? = nil,
+        textToSpeak: String,
+        labelText: String = "Giọng đọc Tiếng Việt (Người thật 100%)"
+    ) {
+        self.questionNumber = questionNumber
         self.textToSpeak = textToSpeak
         self.labelText = labelText
     }
@@ -20,7 +26,7 @@ public struct SpeechPlayerBar: View {
                         .font(.system(size: 16))
                         .foregroundColor(speechService.isSpeaking ? AppTheme.Colors.unlearned : AppTheme.Colors.primary)
 
-                    Text(speechService.isSpeaking ? "Đang đọc mẫu..." : labelText)
+                    Text(speechService.isSpeaking ? "Đang phát giọng đọc..." : labelText)
                         .font(.caption.weight(.bold))
                         .foregroundColor(.primary)
                 }
@@ -53,7 +59,11 @@ public struct SpeechPlayerBar: View {
 
             // Nút bấm Nghe / Dừng To Bản
             Button(action: {
-                speechService.toggle(textToSpeak)
+                if let num = questionNumber {
+                    speechService.toggleQuestion(number: num, fallbackText: textToSpeak)
+                } else {
+                    speechService.toggle(textToSpeak)
+                }
             }) {
                 HStack(spacing: 8) {
                     Image(systemName: speechService.isSpeaking ? "stop.circle.fill" : "play.circle.fill")
@@ -67,6 +77,7 @@ public struct SpeechPlayerBar: View {
                 .foregroundColor(speechService.isSpeaking ? AppTheme.Colors.unlearned : AppTheme.Colors.primary)
                 .cornerRadius(AppTheme.CornerRadius.medium)
             }
+            .buttonStyle(TactileButtonStyle())
         }
         .padding(12)
         .background(Color(.secondarySystemBackground))
