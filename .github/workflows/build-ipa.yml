@@ -82,3 +82,19 @@ jobs:
           name: VovinamHocThuoc-NativeSwift-iOS15
           path: VovinamHocThuoc.ipa
           retention-days: 14
+
+      - name: Create or Update GitHub Release for 1-Click Download
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0-native-swift
+          name: "Vovinam Học Thuộc v2.0 (Native Swift - iOS 15)"
+          body: |
+            ### 📱 Vovinam Học Thuộc — Bản Native Swift (iOS 15 - 18)
+            - **100% Native SwiftUI**: Loại bỏ hoàn toàn WebKit/Capacitor, khởi động tức thì, không bị lỗi màn hình trắng trên iOS 15.
+            - **Giọng đọc Apple Linh vi-VN**: Sử dụng native AVSpeechSynthesizer offline siêu mượt mà.
+            - **Hết Hardcode**: Dữ liệu lưu trữ động trong Documents dưới dạng JSON, hỗ trợ Xuất / Nhập / Tùy biến.
+            - **Đã sửa dứt điểm nút Đặt lại**: Hoạt động reactive ngay lập tức.
+            - **Cài đặt TrollStore**: Tải file `VovinamHocThuoc.ipa` trực tiếp về iPhone và mở bằng TrollStore.
+          files: VovinamHocThuoc.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
