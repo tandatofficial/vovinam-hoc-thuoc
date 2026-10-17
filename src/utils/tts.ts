@@ -200,28 +200,65 @@ class WebAudioService {
     this.state.duration = 0;
     this.emit();
 
-    const audio = new Audio(audioUrl);
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audio.src = audioUrl;
     this.audio = audio;
     audio.playbackRate = this.state.playbackRate;
 
-    audio.onloadedmetadata = () => {
-      this.state.duration = audio.duration || 0;
-      this.emit();
+    const updateDuration = () => {
+      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        this.state.duration = audio.duration;
+        this.emit();
+      }
     };
+
+    audio.onloadedmetadata = updateDuration;
+    audio.ondurationchange = updateDuration;
+    audio.oncanplay = updateDuration;
 
     audio.onended = () => {
       this.stop();
     };
 
+    let hasTriedAlt = false;
     audio.onerror = () => {
-      console.warn(`[WebAudioService] File ${audioUrl} không tải được, fallback sang Web Speech Synthesis`);
+      if (!hasTriedAlt) {
+        hasTriedAlt = true;
+        const altUrl = audioUrl.startsWith('/') ? '.' + audioUrl : '/' + audioUrl.replace(/^\.\//, '');
+        console.info(`[WebAudioService] Thử đường dẫn audio thay thế: ${altUrl}`);
+        audio.src = altUrl;
+        audio.load();
+        audio.play().then(() => {
+          this.startTimeTracker();
+        }).catch((err) => {
+          console.warn('[WebAudioService] Không thể phát audio thay thế:', err);
+          this.fallbackTTS(fallbackText);
+        });
+        return;
+      }
+      console.warn(`[WebAudioService] File ${audioUrl} không phát được, fallback sang Web Speech Synthesis`);
       this.fallbackTTS(fallbackText);
     };
 
     audio.play().then(() => {
       this.startTimeTracker();
-    }).catch(() => {
-      this.fallbackTTS(fallbackText);
+    }).catch((err) => {
+      console.warn('[WebAudioService] audio.play() rejected:', err);
+      // Try alt or fallback
+      if (!hasTriedAlt) {
+        hasTriedAlt = true;
+        const altUrl = audioUrl.startsWith('/') ? '.' + audioUrl : '/' + audioUrl.replace(/^\.\//, '');
+        audio.src = altUrl;
+        audio.load();
+        audio.play().then(() => {
+          this.startTimeTracker();
+        }).catch(() => {
+          this.fallbackTTS(fallbackText);
+        });
+      } else {
+        this.fallbackTTS(fallbackText);
+      }
     });
   }
 

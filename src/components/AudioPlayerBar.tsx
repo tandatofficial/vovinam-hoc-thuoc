@@ -27,7 +27,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
   }, []);
 
   const trackId = isFull ? `q${questionNumber}_full` : `q${questionNumber}`;
-  const audioUrl = isFull ? `/audio/q${questionNumber}_full.mp3` : `/audio/q${questionNumber}.mp3`;
+  const audioUrl = `/audio/${trackId}.mp3`;
   const isThisTrackActive = audioState.currentTrackId === trackId;
 
   const formatTime = (time: number): string => {
@@ -101,14 +101,14 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
       </div>
 
       {/* Active Track Controls: Scrubber & Seek Buttons */}
-      {isThisTrackActive && audioState.duration > 0 ? (
+      {isThisTrackActive && (audioState.isPlaying || audioState.isPaused) ? (
         <div className="flex flex-col gap-2 pt-1 border-t border-border-subtle/70">
           {/* Scrubber slider */}
           <div className="flex flex-col gap-1">
             <input
               type="range"
               min={0}
-              max={audioState.duration || 1}
+              max={Math.max(audioState.duration || 1, 1)}
               step={0.1}
               value={isDragging ? dragValue : audioState.currentTime}
               onMouseDown={() => setIsDragging(true)}
