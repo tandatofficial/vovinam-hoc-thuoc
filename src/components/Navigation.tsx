@@ -19,7 +19,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentTab, onSelectTab,
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe bg-surface-card/90 backdrop-blur-xl shadow-[0_-1px_12px_rgba(0,0,0,0.05)] border-t border-border-subtle">
-      <div className="flex justify-around items-center h-16 max-w-[640px] mx-auto px-space-xs">
+      <div className="flex justify-around items-center h-16 max-w-4xl mx-auto px-4">
         {navItems.map((item) => {
           const isActive = currentTab === item.id;
           return (

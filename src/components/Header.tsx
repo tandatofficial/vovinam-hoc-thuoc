@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pt-safe bg-surface-card/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-border-subtle">
-      <div className="h-16 px-space-md flex items-center justify-between max-w-[640px] mx-auto w-full">
+      <div className="h-16 px-4 sm:px-6 flex items-center justify-between max-w-4xl mx-auto w-full">
         {/* Left: Brand Identity */}
         <div className="flex items-center gap-space-sm select-none">
           <img

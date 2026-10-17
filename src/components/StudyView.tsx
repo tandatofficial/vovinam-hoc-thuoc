@@ -3,7 +3,8 @@ import { QuestionData } from '../data/questions';
 import { ChunkStudy } from './ChunkStudy';
 import { FillBlanks } from './FillBlanks';
 import { KeyPointsChecklist } from './KeyPointsChecklist';
-import { vnSpeech, VoiceSpeed } from '../utils/tts';
+import { AudioPlayerBar } from './AudioPlayerBar';
+import { vnSpeech } from '../utils/tts';
 
 export type StudySubMode = 'overview' | 'chunk' | 'cloze' | 'checklist';
 
@@ -121,6 +122,43 @@ export const StudyView: React.FC<StudyViewProps> = ({
     else if (fontSize === 'large') setFontSize('xl');
     else setFontSize('normal');
   };
+
+  // Phím tắt học trên máy tính (Desktop Shortcuts)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Bỏ qua nếu đang gõ trong input / textarea
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrevQuestion();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNextQuestion();
+      } else if (e.key === '1') {
+        handleSelectScore(0);
+      } else if (e.key === '2') {
+        handleSelectScore(1);
+      } else if (e.key === '3') {
+        handleSelectScore(2);
+      } else if (e.code === 'Space') {
+        e.preventDefault();
+        const fullAnswerText = [
+          currentQuestion.fullAnswer.intro,
+          currentQuestion.fullAnswer.quote,
+          ...currentQuestion.fullAnswer.paragraphs
+        ].filter(Boolean).join('. ');
+        const isFull = answerTab === 'full';
+        const trackId = isFull ? `q${currentQuestion.number}_full` : `q${currentQuestion.number}`;
+        const audioUrl = isFull ? `/audio/q${currentQuestion.number}_full.mp3` : `/audio/q${currentQuestion.number}.mp3`;
+        const text = isFull ? fullAnswerText : `${currentQuestion.title}. Ý cốt tử: ${currentQuestion.easyAnswer.headlineQuote}. ${currentQuestion.easyAnswer.coreMeaning}`;
+        webAudio.playTrack(trackId, audioUrl, text);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, questions, currentQuestion, answerTab, hasUsedHint]);
 
   const textClass = {
     normal: 'text-[15px] leading-relaxed',
@@ -342,84 +380,13 @@ export const StudyView: React.FC<StudyViewProps> = ({
               {currentQuestion.title}
             </h2>
 
-            {/* Thanh Giọng Đọc Tiếng Việt Chuẩn */}
-            <div className="flex flex-col gap-2 p-3 rounded-2xl bg-gradient-to-r from-primary/10 via-surface-subtle to-secondary/10 border border-primary/20">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                    isSpeaking ? 'bg-score-forgot text-white animate-pulse' : 'bg-primary/20 text-primary'
-                  }`}>
-                    <span className="material-symbols-outlined text-[18px]">
-                      {isSpeaking ? 'graphic_eq' : 'record_voice_over'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                      Giọng đọc Tiếng Việt
-                      {isSpeaking && (
-                        <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-score-forgot/15 text-score-forgot font-bold">
-                          Đang đọc...
-                        </span>
-                      )}
-                    </span>
-                    <span className="text-[11px] text-on-surface-variant line-clamp-1">
-                      {isSpeaking ? 'Chạm để dừng đọc bất cứ lúc nào' : 'Nghe giọng đọc Tiếng Việt chuẩn để nhẩm theo'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Tốc độ đọc */}
-                <div className="flex items-center gap-1 bg-surface-card p-1 rounded-xl border border-border-subtle shrink-0">
-                  <button
-                    onClick={() => handleSetSpeed(0.8 as VoiceSpeed)}
-                    className={`px-2 py-1 text-xs font-bold rounded-lg transition-all ${
-                      voiceSpeed === 0.8
-                        ? 'bg-primary text-on-primary shadow-xs'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                    title="Đọc chậm để thuộc lòng"
-                  >
-                    0.8x
-                  </button>
-                  <button
-                    onClick={() => handleSetSpeed(1.0 as VoiceSpeed)}
-                    className={`px-2 py-1 text-xs font-bold rounded-lg transition-all ${
-                      voiceSpeed === 1.0
-                        ? 'bg-primary text-on-primary shadow-xs'
-                        : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                    title="Tốc độ chuẩn"
-                  >
-                    1.0x
-                  </button>
-                </div>
-              </div>
-
-              {/* Action buttons */}
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  onClick={() => handleSpeak(`${currentQuestion.title}. Ý chính: ${currentQuestion.easyAnswer.headlineQuote}. ${currentQuestion.easyAnswer.coreMeaning}`, `/audio/q${currentQuestion.id}_easy.mp3`)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs transition-all active:scale-98 shadow-xs ${
-                    isSpeaking
-                      ? 'bg-score-forgot text-white shadow-score-forgot/30'
-                      : 'bg-primary text-on-primary hover:brightness-105 shadow-primary/20'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    {isSpeaking ? 'stop_circle' : 'volume_up'}
-                  </span>
-                  <span>{isSpeaking ? 'Dừng đọc' : 'Đọc câu hỏi & ý chính'}</span>
-                </button>
-
-                <button
-                  onClick={() => handleSpeak(currentQuestion.title)}
-                  className="px-3 py-2.5 rounded-xl bg-surface-card hover:bg-surface-subtle text-on-surface border border-border-subtle font-bold text-xs transition-all active:scale-95 shrink-0"
-                  title="Chỉ đọc câu hỏi"
-                >
-                  Chỉ đọc câu hỏi
-                </button>
-              </div>
-            </div>
+            {/* Thanh Giọng Đọc Tiếng Việt Chuẩn (Người thật 100%, tua đoạn & 0.25x speed) */}
+            <AudioPlayerBar
+              questionNumber={currentQuestion.number}
+              textToSpeak={`${currentQuestion.title}. Ý cốt tử: ${currentQuestion.easyAnswer.headlineQuote}. ${currentQuestion.easyAnswer.coreMeaning}`}
+              labelText="Giọng đọc Tiếng Việt (Người thật 100%)"
+              buttonText="Nghe đọc mẫu câu hỏi & ý cốt tử"
+            />
           </div>
 
           {/* TẦNG 2: GỢI NHỚ TỪ KHÓA (GỢI Ý TỐC HÀNH) */}
@@ -548,32 +515,17 @@ export const StudyView: React.FC<StudyViewProps> = ({
                 {/* TAB 2: NGUYÊN VĂN CHI TIẾT */}
                 {answerTab === 'full' && (
                   <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-primary/10 border border-primary/20">
-                      <div className="flex items-center gap-2 text-xs font-bold text-primary">
-                        <span className="material-symbols-outlined text-[18px]">menu_book</span>
-                        <span>Nghe đọc toàn văn nguyên văn</span>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const fullText = [
-                            currentQuestion.fullAnswer.intro,
-                            currentQuestion.fullAnswer.quote,
-                            ...currentQuestion.fullAnswer.paragraphs
-                          ].filter(Boolean).join('. ');
-                          handleSpeak(fullText, `/audio/q${currentQuestion.id}_full.mp3`);
-                        }}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-xs ${
-                          isSpeaking
-                            ? 'bg-score-forgot text-white'
-                            : 'bg-primary text-on-primary hover:brightness-105'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-[16px]">
-                          {isSpeaking ? 'stop' : 'volume_up'}
-                        </span>
-                        <span>{isSpeaking ? 'Dừng đọc' : 'Nghe toàn bài'}</span>
-                      </button>
-                    </div>
+                    <AudioPlayerBar
+                      questionNumber={currentQuestion.number}
+                      isFull={true}
+                      textToSpeak={[
+                        currentQuestion.fullAnswer.intro,
+                        currentQuestion.fullAnswer.quote,
+                        ...currentQuestion.fullAnswer.paragraphs
+                      ].filter(Boolean).join('. ')}
+                      labelText="Giọng đọc Nguyên văn chi tiết (Người thật 100%)"
+                      buttonText="Nghe đọc toàn bộ nguyên văn chi tiết"
+                    />
 
                     <div className="p-4 rounded-xl bg-surface-subtle text-on-surface flex flex-col gap-3 border border-border-subtle">
                       <p className="font-bold text-primary text-[16px]">{currentQuestion.fullAnswer.intro}</p>
